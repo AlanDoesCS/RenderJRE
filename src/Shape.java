@@ -1,9 +1,9 @@
 import java.awt.*;
 
 public class Shape {
-    public static Vertex origin;
-    public static Vertex[] vertices;
-    public static int scale;
+    public Vertex origin;
+    public Vertex[] vertices;
+    public int scale;
 
     public Shape(int[][] vertex_array, int x, int y, int z, int scale) { // default colour
         this.scale = scale;
@@ -20,7 +20,7 @@ public class Shape {
         vertices = vertices_temp;
     }
 
-    public static void setScale(int new_scale) {
-        scale = new_scale;
+    public void setScale(int new_scale) {
+        this.scale = new_scale;
     }
 }
