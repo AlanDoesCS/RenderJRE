@@ -16,6 +16,7 @@ public class Shape {
         int i=0;
         for (int[] vert : vertex_array) {
             vertices_temp[i] = new Vertex(vert[0], vert[1], vert[2]);
+            i++;
         }
         vertices = vertices_temp;
 
@@ -33,6 +34,7 @@ public class Shape {
         int i=0;
         for (int[] vert : vertex_array) {
             vertices_temp[i] = new Vertex(vert[0], vert[1], vert[2]);
+            i++;
         }
         vertices = vertices_temp;
 
