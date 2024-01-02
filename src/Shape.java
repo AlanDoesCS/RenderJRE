@@ -1,11 +1,13 @@
 import java.awt.*;
 
 public class Shape {
+    public Color colour;
     public Vertex origin;
     public Vertex[] vertices;
-    public int scale;
+    public float scale;
 
-    public Shape(int[][] vertex_array, int x, int y, int z, int scale) { // default colour
+    //reduce repetition
+    private void init(int[][] vertex_array, int x, int y, int z, float scale, Color colour) {
         this.scale = scale;
         origin = new Vertex(x,y,z);
 
@@ -18,9 +20,20 @@ public class Shape {
             i++;
         }
         vertices = vertices_temp;
+
+        //Assign colour
+        this.colour = colour;
     }
 
-    public void setScale(int new_scale) {
+    public Shape(int[][] vertex_array, int x, int y, int z, float scale, Color colour) { // given colour
+        init(vertex_array, x, y, z, scale, colour);
+    }
+
+    public Shape(int[][] vertex_array, int x, int y, int z, float scale) { // default colour
+        init(vertex_array, x, y, z, scale, Color.BLACK);
+    }
+
+    public void setScale(float new_scale) {
         this.scale = new_scale;
     }
 }

@@ -4,23 +4,23 @@ import javax.swing.*;
 
 public class Main {
     public static class Cube extends Shape {
-        public Cube(int x, int y, int z, int size) {
+        public Cube(int x, int y, int z, float scale, Color colour) {
             super(new int[][]{
                     //Top
                     {1,1,1},{-1,1,1},{1,1,-1},{-1,1,-1},
                     //Bottom
                     {1,-1,1},{-1,-1,1},{1,-1,-1},{-1,-1,-1}
-            }, x,y,z,size);
+            }, x,y,z,scale, colour);
         }
     }
     public static class Pyramid extends Shape {
-        public Pyramid(int x, int y, int z, int size) {
+        public Pyramid(int x, int y, int z, float scale, Color colour) {
             super(new int[][]{
                     //Top
                     {0,1,0},
                     //Bottom
                     {1,-1,1},{-1,-1,1},{1,-1,-1},{-1,-1,-1}
-            }, x,y,z,size);
+            }, x,y,z,scale, colour);
         }
     }
 
@@ -35,22 +35,22 @@ public class Main {
             this.WindowResY = WindowResY;
         }
 
-        public int[] project3Dto2D(Vertex vertex, Vertex origin, int objScale) {
-            int relative_x = origin.x + objScale * vertex.x;
-            int relative_y = origin.y + objScale * vertex.y;
-            int relative_z = origin.z + objScale * vertex.z;
+        public float[] project3Dto2D(Vertex vertex, Vertex origin, float objScale) {
+            float relative_x = origin.x + objScale * vertex.x;
+            float relative_y = origin.y + objScale * vertex.y;
+            float relative_z = origin.z + objScale * vertex.z;
 
-            int new_x = WindowResX/2 + (zoom * relative_x)/relative_z;
-            int new_y = WindowResY/2 + (zoom * relative_y)/relative_z;
+            float new_x = (float) WindowResX /2 + (zoom * relative_x)/relative_z;
+            float new_y = (float) WindowResY /2 + (zoom * relative_y)/relative_z;
 
-            return new int[] {new_x, new_y};
+            return new float[] {new_x, new_y};
         }
 
-        public int[][] render(Shape shape) {
+        public float[][] render(Shape shape) {
             // Get length of rendered vertex array
             int vertex_array_length = shape.vertices.length;
 
-            int[][] vertex_array = new int[vertex_array_length][2]; // convert x,y,z into x,y
+            float[][] vertex_array = new float[vertex_array_length][2]; // convert x,y,z into x,y
 
             // Project vertices onto 2D plane
             int i=0;
@@ -68,11 +68,12 @@ public class Main {
         Renderer RenderJRE = new Renderer(1500, 1920, 1080);
 
         // define shapes
-        Cube Object_1 = new Cube(-2, -1, 15, 1);
-        Pyramid Object_2 = new Pyramid(2, -1, 15, 1);
-        Pyramid Object_3 = new Pyramid(0, 3, 20, 1);
-
-        Shape[] renderedObjs = {Object_1, Object_2, Object_3};
+        Shape[] renderedObjs = {
+                new Cube(-2, -1, 15, 1, Color.RED),
+                new Pyramid(2, -1, 15, 1, Color.GREEN),
+                new Pyramid(0, 3, 20, 2.1f, Color.BLUE),
+                new Cube(-1, -2, 15, 1.5f, Color.MAGENTA)
+        };
 
         JFrame fr = new JFrame();
         fr.setBounds(10, 10, RenderJRE.WindowResX, RenderJRE.WindowResY);
@@ -86,14 +87,16 @@ public class Main {
                 g2.setStroke(new BasicStroke(2));
 
                 for (Shape shape : renderedObjs) {
-                    int[][] vertex_points = RenderJRE.render(shape);
+                    g2.setColor(shape.colour);
 
-                    for (int[] point : vertex_points) {
-                        g2.drawOval(point[0], RenderJRE.WindowResY-point[1], 1, 1);
+                    float[][] vertex_points = RenderJRE.render(shape);
+
+                    for (float[] point : vertex_points) {
+                        g2.drawOval((int) point[0], (int) (RenderJRE.WindowResY-point[1]), 1, 1);
                     }
 
-                    for (int[] point : vertex_points) {
-                        for (int[] next_point : vertex_points) {
+                    for (float[] point : vertex_points) {
+                        for (float[] next_point : vertex_points) {
                             if (next_point != point) {
                                 Line2D line = new Line2D.Float(point[0], RenderJRE.WindowResY-point[1], next_point[0], RenderJRE.WindowResY-next_point[1]);
                                 g2.draw(line);
