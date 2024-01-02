@@ -70,8 +70,9 @@ public class Main {
         // define shapes
         Cube Object_1 = new Cube(-2, -1, 15, 1);
         Pyramid Object_2 = new Pyramid(2, -1, 15, 1);
+        Pyramid Object_3 = new Pyramid(0, 3, 20, 1);
 
-        Shape[] renderedObjs = {Object_1, Object_2};
+        Shape[] renderedObjs = {Object_1, Object_2, Object_3};
 
         JFrame fr = new JFrame();
         fr.setBounds(10, 10, RenderJRE.WindowResX, RenderJRE.WindowResY);
@@ -88,7 +89,6 @@ public class Main {
                     int[][] vertex_points = RenderJRE.render(shape);
 
                     for (int[] point : vertex_points) {
-                        System.out.println("Painting: "+point[0]+","+point[1]+"  "+shape);
                         g2.drawOval(point[0], RenderJRE.WindowResY-point[1], 1, 1);
                     }
 
