@@ -4,23 +4,23 @@ import javax.swing.*;
 
 public class Main {
     public static class Cube extends Shape {
-        public Cube(int x, int y, int z, int size) {
+        public Cube(int x, int y, int z, int size, Color colour) {
             super(new int[][]{
                     //Top
                     {1,1,1},{-1,1,1},{1,1,-1},{-1,1,-1},
                     //Bottom
                     {1,-1,1},{-1,-1,1},{1,-1,-1},{-1,-1,-1}
-            }, x,y,z,size);
+            }, x,y,z,size, colour);
         }
     }
     public static class Pyramid extends Shape {
-        public Pyramid(int x, int y, int z, int size) {
+        public Pyramid(int x, int y, int z, int size, Color colour) {
             super(new int[][]{
                     //Top
                     {0,1,0},
                     //Bottom
                     {1,-1,1},{-1,-1,1},{1,-1,-1},{-1,-1,-1}
-            }, x,y,z,size);
+            }, x,y,z,size, colour);
         }
     }
 
@@ -46,38 +46,34 @@ public class Main {
             return new int[] {new_x, new_y};
         }
 
-        public int[][] render(Shape[] shapes) {
+        public int[][] render(Shape shape) {
             // Get length of rendered vertex array
-            int vertex_array_length = 0;
-            for (Shape shape : shapes) {
-                vertex_array_length += shape.vertices.length;
-            }
+            int vertex_array_length = shape.vertices.length;
 
             int[][] vertex_array = new int[vertex_array_length][2]; // convert x,y,z into x,y
 
             // Project vertices onto 2D plane
             int i=0;
             System.out.println("\nProjecting...\n");
-            for (Shape shape : shapes) {
-                for (Vertex vertex : shape.vertices) {
-                    System.out.println("vertex: ("+vertex.x+","+vertex.y+","+vertex.z+")");
 
-                    vertex_array[i] = project3Dto2D(vertex, shape.origin, shape.scale);
-                }
+            for (Vertex vertex : shape.vertices) {
+                System.out.println("vertex: ("+vertex.x+","+vertex.y+","+vertex.z+")");
+
+                vertex_array[i] = project3Dto2D(vertex, shape.origin, shape.scale);
+                System.out.println("Projected vertex: ("+vertex_array[i][0]+","+vertex_array[i][1]+")");
+                i++;
             }
 
             return vertex_array;
         }
     }
     public static void main(String[] args) {
-        int window_size_x = 200, window_size_y = 200;
-
         //create renderer Object
         Renderer RenderJRE = new Renderer(1000, 1920, 1080);
 
         // define shapes
-        Cube Object_1 = new Cube(-1, -1, 15, 1);
-        Pyramid Object_2 = new Pyramid(1, -1, 15, 1);
+        Cube Object_1 = new Cube(-2, -1, 15, 1, Color.BLUE);
+        Pyramid Object_2 = new Pyramid(2, -1, 15, 1, Color.RED);
 
         Shape[] renderedObjs = {Object_1, Object_2};
 
@@ -90,14 +86,18 @@ public class Main {
             public void paint(Graphics g) {
                 Graphics2D g2=(Graphics2D)g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setStroke(new BasicStroke(5));
+                g2.setStroke(new BasicStroke(2));
 
-                int[][] vertex_points = RenderJRE.render(renderedObjs);
+                for (Shape shape : renderedObjs) {
+                    int[][] vertex_points = RenderJRE.render(shape);
 
-                g2.setColor(Shape.colour);
-                for (int[] point : vertex_points) {
-                    g2.drawOval(point[0], point[1], 10, 10);
+                    g2.setColor(shape.colour);
+                    for (int[] point : vertex_points) {
+                        System.out.println("Painting: "+point[0]+","+point[1]+"  "+shape);
+                        g2.drawOval(point[0], RenderJRE.WindowResY-point[1], 1, 1);
+                    }
                 }
+
 
                 /*
                 Line2D line = new Line2D.Float(p1_x, p1_y, p2_x, p2_y);
