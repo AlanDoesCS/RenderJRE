@@ -4,23 +4,23 @@ import javax.swing.*;
 
 public class Main {
     public static class Cube extends Shape {
-        public Cube(int x, int y, int z, int size, Color colour) {
+        public Cube(int x, int y, int z, int size) {
             super(new int[][]{
                     //Top
                     {1,1,1},{-1,1,1},{1,1,-1},{-1,1,-1},
                     //Bottom
                     {1,-1,1},{-1,-1,1},{1,-1,-1},{-1,-1,-1}
-            }, x,y,z,size, colour);
+            }, x,y,z,size);
         }
     }
     public static class Pyramid extends Shape {
-        public Pyramid(int x, int y, int z, int size, Color colour) {
+        public Pyramid(int x, int y, int z, int size) {
             super(new int[][]{
                     //Top
                     {0,1,0},
                     //Bottom
                     {1,-1,1},{-1,-1,1},{1,-1,-1},{-1,-1,-1}
-            }, x,y,z,size, colour);
+            }, x,y,z,size);
         }
     }
 
@@ -54,13 +54,9 @@ public class Main {
 
             // Project vertices onto 2D plane
             int i=0;
-            System.out.println("\nProjecting...\n");
 
             for (Vertex vertex : shape.vertices) {
-                System.out.println("vertex: ("+vertex.x+","+vertex.y+","+vertex.z+")");
-
                 vertex_array[i] = project3Dto2D(vertex, shape.origin, shape.scale);
-                System.out.println("Projected vertex: ("+vertex_array[i][0]+","+vertex_array[i][1]+")");
                 i++;
             }
 
@@ -69,11 +65,11 @@ public class Main {
     }
     public static void main(String[] args) {
         //create renderer Object
-        Renderer RenderJRE = new Renderer(1000, 1920, 1080);
+        Renderer RenderJRE = new Renderer(1500, 1920, 1080);
 
         // define shapes
-        Cube Object_1 = new Cube(-2, -1, 15, 1, Color.BLUE);
-        Pyramid Object_2 = new Pyramid(2, -1, 15, 1, Color.RED);
+        Cube Object_1 = new Cube(-2, -1, 15, 1);
+        Pyramid Object_2 = new Pyramid(2, -1, 15, 1);
 
         Shape[] renderedObjs = {Object_1, Object_2};
 
@@ -91,18 +87,20 @@ public class Main {
                 for (Shape shape : renderedObjs) {
                     int[][] vertex_points = RenderJRE.render(shape);
 
-                    g2.setColor(shape.colour);
                     for (int[] point : vertex_points) {
                         System.out.println("Painting: "+point[0]+","+point[1]+"  "+shape);
                         g2.drawOval(point[0], RenderJRE.WindowResY-point[1], 1, 1);
                     }
+
+                    for (int[] point : vertex_points) {
+                        for (int[] next_point : vertex_points) {
+                            if (next_point != point) {
+                                Line2D line = new Line2D.Float(point[0], RenderJRE.WindowResY-point[1], next_point[0], RenderJRE.WindowResY-next_point[1]);
+                                g2.draw(line);
+                            }
+                        }
+                    }
                 }
-
-
-                /*
-                Line2D line = new Line2D.Float(p1_x, p1_y, p2_x, p2_y);
-                g2.draw(line);
-                 */
             }
         };
 
