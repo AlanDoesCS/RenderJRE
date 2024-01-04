@@ -1,11 +1,14 @@
 import java.awt.*;
 import java.awt.geom.Line2D;
-import java.util.ArrayList;
 import javax.swing.*;
 
 public class Main {
     public static double clamp (double min, double value, double max) {
         return Math.max(min, Math.min(max, value));
+    }
+    public static double round (double value, int decimal_places) {
+        double tens = Math.pow(10, decimal_places);
+        return Math.round(value * tens) / tens;
     }
 
     public static int RandomInt(int min, int max) {
@@ -16,6 +19,49 @@ public class Main {
     }
     public static double RandomDouble(double min, double max) {
         return (Math.random() * (max - min)) + min;
+    }
+
+    public static class Icosahedron extends Shape {
+
+        public Icosahedron(double x, double y, double z, double scale, Color colour) {
+            super(x, y, z, scale, colour);
+
+            double phi = (1 + Math.sqrt(5)) / 2; // Golden ratio
+
+            Vertex A = new Vertex(0, 1, phi);
+            Vertex B = new Vertex(0, -1, phi);
+            Vertex C = new Vertex(0, 1, -phi);
+            Vertex D = new Vertex(0, -1, -phi);
+
+            Vertex E = new Vertex(1, phi, 0);
+            Vertex F = new Vertex(-1, phi, 0);
+            Vertex G = new Vertex(1, -phi, 0);
+            Vertex H = new Vertex(-1, -phi, 0);
+
+            Vertex I = new Vertex(phi, 0, 1);
+            Vertex J = new Vertex(-phi, 0, 1);
+            Vertex K = new Vertex(phi, 0, -1);
+            Vertex L = new Vertex(-phi, 0, -1);
+
+            vertices = new Vertex[]{A,B,C,D,E,F,G,H,I,J,K,L};
+
+            Vertex[][] faces = { // triangles
+                    {A, B, I}, {A, B, J},
+                    {A, I, E}, {A, J, F},
+                    {B, I, G}, {B, J, H},
+                    {A, E, F}, {B, H, G},
+                    {I, E, K}, {I, G, K},
+                    {J, F, L}, {J, H, L},
+                    {E, K, C}, {F, L, C},
+                    {H, L, D}, {G, K, D},
+                    {E, F, C}, {H, G, D},
+                    {K, C, D}, {L, C, D}
+            };
+
+            for (Vertex[] face : faces) {
+                triangles.add(new Triangle(face[0], face[1], face[2]));
+            }
+        }
     }
 
     public static class Cuboid extends Shape {
@@ -102,19 +148,26 @@ public class Main {
     }
 
     public static class Sphere extends Shape {
-        public Sphere(double x, double y, double z, double scale, int resolution, Color colour) {
+        public Sphere(double x, double y, double z, double scale, int num_of_points, Color colour) {
             super(x, y, z, scale); // temporarily empty
 
-            double[][] sphere = new double[resolution * resolution][3];
+            double[][] sphere = new double[num_of_points][3];
 
-            int i=0;
-            for (double x_cor=-1; x_cor<1.; x_cor+=2./resolution) {
-                for (double y_cor=-1; y_cor<1.; y_cor+=2./resolution) {
-                    double z_cor = Math.sqrt(1+ x_cor*x_cor - y_cor*y_cor);
-                    sphere[i] = new double[]{x, y, z};
-                    i++;
-                }
+            for (int i = 0; i < num_of_points; i++) {
+                double phi = Math.acos(2 * Math.random() - 1); // Latitude angle
+                double theta = 2 * Math.PI * Math.random(); // Longitude angle
+
+                // Convert spherical coordinates to Cartesian coordinates
+                double x_cor = Math.sin(phi) * Math.cos(theta);
+                double y_cor = Math.sin(phi) * Math.sin(theta);
+                double z_cor = Math.cos(phi);
+
+                // Store the Cartesian coordinates in the array
+                sphere[i][0] = x_cor;
+                sphere[i][1] = y_cor;
+                sphere[i][2] = z_cor;
             }
+
             init(sphere, x,y,z,scale,colour);
         }
     }
@@ -138,10 +191,14 @@ public class Main {
         Hexagonal_Prism hex_prism = new Hexagonal_Prism(-2, 2.1, 15, 10, 0.5, Color.ORANGE);
         hex_prism.setRotation(0, 0, 0);
 
+        // Sphere
+        Icosahedron icosahedron = new Icosahedron(1.5, 1.6, 16, 0.5, Color.pink);
+
         // Camera position
         Shape camera = new Shape(0,0,0,1);
 
         Shape[] unsortedObjs = {
+                icosahedron,
                 cuboid,
                 light,
                 cube1,
@@ -159,7 +216,8 @@ public class Main {
             @Override
             public void paint(Graphics g) {
                 Graphics2D g2=(Graphics2D)g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                //g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 
                 // Perform most efficient sorting algorithm based on input size
                 Shape[] orderedObjs = Renderer.order_shapes(unsortedObjs, camera);
@@ -176,8 +234,8 @@ public class Main {
                     // Fill shapes
                     for (int tri_index = orderedTriangles.length-1; tri_index>=0; tri_index--) {
                         Color lit = RenderJRE.diffuseBasic(shape.colour, light, orderedTriangles[tri_index], 100); //set distance properly!!!!
-                        //g2.setColor(lit);
-                        g2.setColor(shape.colour);
+                        g2.setColor(lit);
+                        //g2.setColor(shape.colour);
 
                         Vertex2D[] triangle = Triangle_Points[tri_index];
                         int[] xpoints = {(int)triangle[0].x, (int)triangle[1].x, (int)triangle[2].x};
