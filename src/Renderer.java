@@ -199,7 +199,7 @@ public class Renderer {
         return sorted;
     }
 
-    public Color diffuseBasic(Color base, LightSource light, Shape.Triangle object, double distance) {
+    public Color diffuseBasic(Color base, DirectLight light, Shape.Triangle object, double distance) {
         Vector3D colorVect = new Vector3D(light.ambient.i, light.ambient.j, light.ambient.k);
 
         Vector3D normal = new Vector3D();

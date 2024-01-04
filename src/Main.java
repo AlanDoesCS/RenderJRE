@@ -1,5 +1,4 @@
 import java.awt.*;
-import java.awt.geom.Line2D;
 import javax.swing.*;
 
 public class Main {
@@ -92,12 +91,12 @@ public class Main {
             }
 
             Vertex[][] faces = { // triangles
-                    {A, B, D}, {A, B, F},
-                    {A, C, D}, {A, E, F},
-                    {A, C, E}, {B, D, F},
-                    {G, H, D}, {G, H, F},
-                    {G, C, D}, {G, E, F},
-                    {G, C, E}, {H, D, F}
+                    {E, A, B}, {B, F, E},
+                    {D, H, F}, {F, B, D},
+                    {B, A, C}, {C, D, B},
+                    {A, E, G}, {G, C, A},
+                    {E, F, H}, {H, G, E},
+                    {C, G, H}, {H, D, C}
             };
 
             for (Vertex[] face : faces) {
@@ -122,23 +121,15 @@ public class Main {
             Vertex C = new Vertex(-1, 0, 1);
             Vertex D = new Vertex(-1, 0, -1);
 
-            /* y axis plane
-            Vertex A = new Vertex(1, 1, 0);
-            Vertex B = new Vertex(1, -1, 0);
-            Vertex C = new Vertex(-1, 1, 0);
-            Vertex D = new Vertex(-1, -1, 0);
-             */
-
-            vertices = new Vertex[]{A,B,C,D};
+            vertices = new Vertex[] {A,B,C,D};
 
             for (Vertex v : vertices) { // change to fill 1x1 space
                 v.x *= width/2;
-                //v.z *= length/2;
-                v.y *= length/2;
+                v.z *= length/2;
             }
 
             Vertex[][] faces = { // triangles
-                    {A, B, C}, {D, B, C},
+                    {C, A, B}, {B, D, C},
             };
 
             for (Vertex[] face : faces) {
@@ -209,7 +200,7 @@ public class Main {
         Renderer RenderJRE = new Renderer(1000, 2,  1000, 1000);
 
         //Light above
-        LightSource light = new LightSource(-2,3,15,10, Color.WHITE);
+        DirectLight light = new DirectLight(-2,3,15, Color.WHITE);
 
         //Cube
         Cube cube1 = new Cube(2, -3, 15, 1, Color.RED);
@@ -227,7 +218,7 @@ public class Main {
         Icosahedron icosahedron = new Icosahedron(2.1, 1.2, 17, 0.5, Color.pink);
 
         // Plane
-        Plane plane = new Plane(0, 0, 0.01, 1, 1, 1, Color.YELLOW);
+        Plane plane = new Plane(0, -2.5, 10, 3, 1, 1, Color.YELLOW);
 
         // Camera position
         Shape camera = new Shape(0,0,0,1);
@@ -235,7 +226,6 @@ public class Main {
         Shape[] unsortedObjs = {
                 icosahedron,
                 cuboid,
-                light,
                 cube1,
                 plane,
                 //hex_prism,
