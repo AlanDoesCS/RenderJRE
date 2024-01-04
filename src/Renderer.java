@@ -206,7 +206,7 @@ public class Renderer {
         normal = normal.normal(object);
         normal.normalise(); // normalise length of the vector
 
-        double diffuseStrength = Math.max(0., light.direction.dot(normal));
+        double diffuseStrength = Math.abs(light.direction.dot(normal));
 
         colorVect.i = clamp(0,diffuseStrength * base.getRed(), 255);
         colorVect.j = clamp(0,diffuseStrength * base.getGreen(), 255);

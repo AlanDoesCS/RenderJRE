@@ -4,22 +4,50 @@ import java.util.ArrayList;
 public class Shape {
     public class Triangle {
         public Vertex[] points;
-        public Vertex midpoint;
+        public Vertex centroid, midpoint;
         private void init(Vertex[] array) {
             points = array;
             if (array.length > 1) {
+                double max_x=0, min_x=0, max_y=0, min_y=0, max_z=0, min_z=0;
+                for (int dimension=1; dimension<=3; dimension++) {
+                    if (dimension==1) {
+                        max_x = array[0].x;
+                        min_x = array[0].x;
+                        for (int i = 1; i < array.length; i++) {
+                            max_x = Math.max(max_x, array[i].x);
+                            min_x = Math.min(min_x, array[i].x);
+                        }
+                    } else if (dimension==2) {
+                        max_y = array[0].y;
+                        min_y = array[0].y;
+                        for (int i = 1; i < array.length; i++) {
+                            max_y = Math.max(max_y, array[i].y);
+                            min_y = Math.min(min_y, array[i].y);
+                        }
+                    } else if (dimension==3) {
+                        max_z = array[0].z;
+                        min_z = array[0].z;
+                        for (int i = 1; i < array.length; i++) {
+                            max_z = Math.max(max_z, array[i].z);
+                            min_z = Math.min(min_z, array[i].z);
+                        }
+                    }
+                }
+                midpoint = new Vertex((max_x+min_x)/2, (max_y+min_y)/2, (max_z+min_z)/2);
+
                 double sum_x = 0, sum_y = 0, sum_z = 0;
                 for (Vertex value : array) {
                     sum_x += value.x;
                     sum_y += value.y;
                     sum_z += value.z;
                 }
-
-                midpoint = new Vertex(sum_x/array.length, sum_y/array.length, sum_z/ array.length);
+                centroid = new Vertex(sum_x/array.length, sum_y/array.length, sum_z/ array.length);
             } else if (array.length == 1) {
-                midpoint = new Vertex(array[0].x,array[0].y,array[0].z);
+                centroid = new Vertex(array[0].x,array[0].y,array[0].z);
+                midpoint = centroid;
             } else {
-                midpoint = new Vertex(0,0,0);
+                centroid = new Vertex(0,0,0);
+                midpoint = centroid;
             }
         }
 

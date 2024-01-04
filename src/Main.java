@@ -132,11 +132,11 @@ public class Main {
 
         //Cuboid
         Cuboid cuboid = new Cuboid(-2, -3, 20, 3.5, 2, 1.1, 1.5, Color.gray);
-        cuboid.setRotation(0,0,10);
+        cuboid.setRotation(0,0,0);
 
         // Hexagonal Prism
         Hexagonal_Prism hex_prism = new Hexagonal_Prism(-2, 2.1, 15, 10, 0.5, Color.ORANGE);
-        hex_prism.setRotation(90, 0, 0);
+        hex_prism.setRotation(0, 0, 0);
 
         // Camera position
         Shape camera = new Shape(0,0,0,1);
@@ -185,7 +185,7 @@ public class Main {
 
                         Polygon p = new Polygon(xpoints, ypoints, 3);  // This polygon represents a triangle with the above
                         // fill shape vertices.
-                        //g2.fillPolygon(p);
+                        g2.fillPolygon(p);
 
                         // draw wireframe
                         g2.setColor(shape.colour.darker());
