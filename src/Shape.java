@@ -1,15 +1,40 @@
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Shape {
+    public class Triangle {
+        public Vertex[] points;
+        public Vertex midpoint;
+
+        public Triangle(Vertex[] array) {
+            points = array;
+            if (array.length > 1) {
+                double sum_x = 0, sum_y = 0, sum_z = 0;
+                for (int vertex=0; vertex < array.length; vertex++) {
+                    sum_x += array[vertex].x;
+                    sum_y += array[vertex].y;
+                    sum_z += array[vertex].z;
+                }
+
+                midpoint = new Vertex(sum_x/array.length, sum_y/array.length, sum_z/ array.length);
+            } else if (array.length == 1) {
+                midpoint = new Vertex(array[0].x,array[0].y,array[0].z);
+            } else {
+                midpoint = new Vertex(0,0,0);
+            }
+        }
+    }
+
     final double degToRad = Math.PI / 180; // ratio of degrees to radians
     Color colour;
     Vertex origin;
     Vertex[] vertices;
+    ArrayList<Triangle> triangles = new ArrayList<>();
     double scale;
-    int[] rotation = {0, 0, 0};
 
     //reduce repetition
-    private void init(double[][] vertex_array, double x, double y, double z, double scale, Color colour) {
+    void init(double[][] vertex_array, double x, double y, double z, double scale, Color colour) {
+
         this.scale = scale;
         origin = new Vertex(x,y,z);
 
@@ -23,6 +48,29 @@ public class Shape {
         }
         vertices = vertices_temp;
 
+        int vert_len = vertices.length;
+        double[][][] unique_tris = new double[vert_len][vert_len][vert_len];
+
+        if (vertices.length > 2) {
+            for (int v1=0; v1<vertices.length; v1++) {
+                for (int v2=0; v2<vertices.length; v2++) {
+                    for (int v3=0; v3<vertices.length; v3++) {
+                        if (v1!=v2 && v1!=v3 && v2!=v3 && unique_tris[v1][v2][v3] == 0.0) {
+                            triangles.add(new Triangle(new Vertex[]{vertices[v1], vertices[v2], vertices[v3]}));
+
+                            unique_tris[v1][v2][v3] = 1.0;
+                            unique_tris[v1][v3][v2] = 1.0;
+                            unique_tris[v2][v1][v3] = 1.0;
+                            unique_tris[v2][v3][v1] = 1.0;
+                            unique_tris[v3][v1][v2] = 1.0;
+                            unique_tris[v3][v2][v1] = 1.0;
+                        }
+                    }
+                }
+            }
+        }
+
+
         //Assign colour
         this.colour = colour;
     }
@@ -31,8 +79,11 @@ public class Shape {
         init(vertex_array, x, y, z, scale, colour);
     }
 
-    public Shape(double[][] vertex_array, int x, int y, int z, double scale) { // default colour
+    public Shape(double[][] vertex_array, double x, double y, double z, double scale) { // default colour
         init(vertex_array, x, y, z, scale, Color.BLACK);
+    }
+    public Shape(double x, double y, double z, double scale) { // Empty vertices - Intended only for temporary purposes
+        init(new double[][]{}, x, y, z, scale, Color.BLACK);
     }
 
     public void setScale(double new_scale) {
@@ -64,19 +115,14 @@ public class Shape {
     }
 
     public void setRotation(double theta_x, double theta_y, double theta_z) {
-        /*
         if (theta_x != 0) {
-            rotateX(theta_x*intToRad);
+            rotateX(theta_x*degToRad);
         }
         if (theta_y != 0) {
-            rotateY(theta_y*intToRad);
+            rotateY(theta_y*degToRad);
         }
         if (theta_z != 0) {
-            rotateZ(theta_z*intToRad);
+            rotateZ(theta_z*degToRad);
         }
-        */
-        rotateX(theta_x* degToRad);
-        rotateY(theta_y* degToRad);
-        rotateZ(theta_z* degToRad);
     }
 }

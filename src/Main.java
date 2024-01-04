@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.geom.Line2D;
+import java.util.ArrayList;
 import javax.swing.*;
 
 public class Main {
@@ -55,63 +56,49 @@ public class Main {
         }
     }
 
-    public static class Renderer {
-        public int zoom;
-        public double FocalLength;
-        public int WindowResX, WindowResY;
-        public Renderer(int zoom, double FocalLength, int WindowResX, int WindowResY)
-        {
-            this.zoom = zoom;
-            this.FocalLength = FocalLength;
-            this.WindowResX = WindowResX;
-            this.WindowResY = WindowResY;
-        }
+    public static class Sphere extends Shape {
+        public Sphere(double x, double y, double z, double scale, int resolution, Color colour) {
+            super(x, y, z, scale); // temporarily empty
 
-        public double[] project3Dto2D(Vertex vertex, Vertex origin, double objScale) {
-            double relative_x = origin.x + objScale * vertex.x;
-            double relative_y = origin.y + objScale * vertex.y;
-            double relative_z = origin.z + objScale * vertex.z;
+            double[][] sphere = new double[resolution * resolution][3];
 
-            double projected_x = (double) WindowResX /2 + (zoom * relative_x * FocalLength)/(relative_z+FocalLength);
-            double projected_y = (double) WindowResY /2 + (zoom * relative_y * FocalLength)/(relative_z+FocalLength);
-
-            return new double[] {projected_x, projected_y};
-        }
-
-        public double[][] render(Shape shape) {
-            // Get length of rendered vertex array
-            int vertex_array_length = shape.vertices.length;
-
-            double[][] vertex_array = new double[vertex_array_length][2]; // convert x,y,z into x,y
-
-            // Project vertices onto 2D plane
             int i=0;
-
-            for (Vertex vertex : shape.vertices) {
-                vertex_array[i] = project3Dto2D(vertex, shape.origin, shape.scale);
-                i++;
+            for (double x_cor=-1; x_cor<1.; x_cor+=2./resolution) {
+                for (double y_cor=-1; y_cor<1.; y_cor+=2./resolution) {
+                    double z_cor = 0;
+                    sphere[i] = new double[]{x, y, z};
+                    i++;
+                }
             }
-
-            return vertex_array;
+            init(sphere, x,y,z,scale,colour);
         }
     }
+
     public static void main(String[] args) {
         //create renderer Object
         Renderer RenderJRE = new Renderer(1000, 2,  1000, 1000);
 
-        // define shape array
+        //Light above
+        LightSource light = new LightSource(-2,3,15,1, Color.WHITE);
+
+        //Cube
         Cube cube1 = new Cube(0, -3, 15, 1, Color.RED);
         cube1.setRotation(0, 10, 0);
 
-        Hexagonal_Prism hex_prism = new Hexagonal_Prism(0, 2, 15, 2, 0.5, Color.ORANGE);
+        // Hexagonal Prism
+        Hexagonal_Prism hex_prism = new Hexagonal_Prism(0, 0, 30, 2, 0.5, Color.ORANGE);
         hex_prism.setRotation(45, 45, 0);
 
-        Shape[] renderedObjs = {
+        // Camera position
+        Shape camera = new Shape(0,0,0,1);
+
+        Shape[] unsortedObjs = {
+                light,
                 cube1,
                 hex_prism,
-                new Pyramid(2, -1, 15, 1, Color.GREEN),
-                new Pyramid(0, 4, 20, 0.6, Color.BLUE),
-                new Cube(-1, -2, 15, 0.4, Color.MAGENTA)
+                new Pyramid(0, 0, 15, 1, Color.GREEN),
+                new Pyramid(0, 0, 17.5, 0.6, Color.BLUE),
+                new Cube(0, 0, 20, 0.4, Color.MAGENTA)
         };
 
         JFrame fr = new JFrame();
@@ -123,30 +110,48 @@ public class Main {
             public void paint(Graphics g) {
                 Graphics2D g2=(Graphics2D)g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setStroke(new BasicStroke(2));
 
-                for (Shape shape : renderedObjs) {
-                    g2.setColor(shape.colour);
+                // Perform most efficient sorting algorithm based on input size
+                Shape[] orderedObjs = Renderer.order_shapes(unsortedObjs, camera);
+                g2.setStroke(new BasicStroke(10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                for (int shape_index = orderedObjs.length-1; shape_index>=0; shape_index--) {
+                    Shape shape = orderedObjs[shape_index];
+
+                    // Perform most efficient sorting algorithm based on input size
+                    Shape.Triangle[] orderedTriangles = Renderer.order_triangles(shape.triangles, camera);
 
                     double[][] vertex_points = RenderJRE.render(shape);
+                    double[][][] Triangle_Points = RenderJRE.render_triangles(shape);
 
-                    for (double[] point : vertex_points) {
-                        g2.drawOval((int) point[0], (int) (RenderJRE.WindowResY-point[1]), 1, 1);
-                    }
+                    g2.setColor(shape.colour.darker());
 
                     for (double[] point : vertex_points) {
                         for (double[] next_point : vertex_points) {
                             if (next_point != point) {
-                                Line2D line = new Line2D.Float((float) point[0], (float) (RenderJRE.WindowResY-point[1]), (float) next_point[0], (float) (RenderJRE.WindowResY-next_point[1]));
+                                float WindowP1_PosY = (float) (RenderJRE.WindowResY-point[1]);
+                                float WindowP2_PosY = (float) (RenderJRE.WindowResY-next_point[1]);
+
+                                Line2D line = new Line2D.Float((float) point[0], WindowP1_PosY, (float) next_point[0], WindowP2_PosY);
                                 g2.draw(line);
                             }
                         }
+                    }
+
+                    g2.setColor(shape.colour);
+
+                    for (double[][] triangle : Triangle_Points) {
+                        int[] xpoints = {(int)triangle[0][0], (int)triangle[1][0], (int)triangle[2][0]};
+                        int[] ypoints = {(int) (RenderJRE.WindowResY-triangle[0][1]), (int) (RenderJRE.WindowResY-triangle[1][1]), (int) (RenderJRE.WindowResY-triangle[2][1])};
+
+                        Polygon p = new Polygon(xpoints, ypoints, 3);  // This polygon represents a triangle with the above
+                        //   vertices.
+                        g2.fillPolygon(p);
                     }
                 }
             }
         };
 
-        fr.setBackground(Color.WHITE);
+        fr.setBackground(Color.BLACK);
         fr.add(pn);
         fr.setVisible(true);
     }
