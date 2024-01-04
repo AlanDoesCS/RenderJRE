@@ -22,7 +22,6 @@ public class Main {
     }
 
     public static class Icosahedron extends Shape {
-
         public Icosahedron(double x, double y, double z, double scale, Color colour) {
             super(x, y, z, scale, colour);
 
@@ -44,6 +43,12 @@ public class Main {
             Vertex L = new Vertex(-phi, 0, -1);
 
             vertices = new Vertex[]{A,B,C,D,E,F,G,H,I,J,K,L};
+
+            for (Vertex v : vertices) { // change to fill 1x1 space
+                v.x /= 2;
+                v.y /= 2;
+                v.z /= 2;
+            }
 
             Vertex[][] faces = { // triangles
                     {A, B, I}, {A, B, J},
@@ -68,50 +73,77 @@ public class Main {
         public Cuboid(double x, double y, double z, double width, double length, double height, double scale, Color colour) {
             super(x, y, z, scale, colour);
 
-            Vertex[][][] Vertices = new Vertex[2][2][2]; //split into halves: 8/2 -> 4/2 -> 2/2 -> Specific vertex
-            vertices = new Vertex[8];
+            Vertex A = new Vertex(1, 1, 1);
+            Vertex B = new Vertex(1, 1, -1);
+            Vertex C = new Vertex(1, -1, 1);
+            Vertex D = new Vertex(1, -1, -1);
 
-            int vertex=0;
-            int i=0, j, k;
-            for (double slice_x = -0.5; slice_x<=0.5; slice_x++) {
-                j=0;
-                for (double slice_y = -0.5; slice_y<=0.5; slice_y++) {
-                    k=0;
-                    for (double slice_z = -0.5; slice_z<=0.5; slice_z++) {
-                        Vertices[i][j][k] = new Vertex(width*slice_x, height*slice_y, length*slice_z);
-                        vertices[vertex]=Vertices[i][j][k];
-                        k++;
-                        vertex++;
-                    }
-                    j++;
-                }
-                i++;
+            Vertex E = new Vertex(-1, 1, 1);
+            Vertex F = new Vertex(-1, 1, -1);
+            Vertex G = new Vertex(-1, -1, 1);
+            Vertex H = new Vertex(-1, -1, -1);
+
+            vertices = new Vertex[]{A,B,C,D,E,F,G,H};
+
+            for (Vertex v : vertices) { // change to fill 1x1 space
+                v.x *= width/2;
+                v.y *= height/2;
+                v.z *= length/2;
             }
 
-            // 2 left triangles
-            triangles.add( new Triangle( Vertices[0][0][0], Vertices[0][0][1], Vertices[0][1][1]) );
-            triangles.add( new Triangle( Vertices[0][0][0], Vertices[0][1][0], Vertices[0][1][1]) );
-            // 2 right triangles
-            triangles.add( new Triangle( Vertices[1][0][0], Vertices[1][0][1], Vertices[1][1][1]) );
-            triangles.add( new Triangle( Vertices[1][0][0], Vertices[1][1][0], Vertices[1][1][1]) );
-            // 2 bottom triangles
-            triangles.add( new Triangle( Vertices[0][0][0], Vertices[0][0][1], Vertices[1][0][0]) );
-            triangles.add( new Triangle( Vertices[1][0][1], Vertices[0][0][1], Vertices[1][0][0]) );
-            // 2 top triangles
-            triangles.add( new Triangle( Vertices[0][1][0], Vertices[0][1][1], Vertices[1][1][0]) );
-            triangles.add( new Triangle( Vertices[1][1][1], Vertices[0][1][1], Vertices[1][1][0]) );
-            // 2 front triangles
-            triangles.add( new Triangle( Vertices[0][0][0], Vertices[0][1][0], Vertices[1][1][0]) );
-            triangles.add( new Triangle( Vertices[0][0][0], Vertices[1][0][0], Vertices[1][1][0]) );
-            // 2 back triangles
-            triangles.add( new Triangle( Vertices[0][0][1], Vertices[0][1][1], Vertices[1][1][1]) );
-            triangles.add( new Triangle( Vertices[0][0][1], Vertices[1][0][1], Vertices[1][1][1]) );
+            Vertex[][] faces = { // triangles
+                    {A, B, D}, {A, B, F},
+                    {A, C, D}, {A, E, F},
+                    {A, C, E}, {B, D, F},
+                    {G, H, D}, {G, H, F},
+                    {G, C, D}, {G, E, F},
+                    {G, C, E}, {H, D, F}
+            };
+
+            for (Vertex[] face : faces) {
+                triangles.add(new Triangle(face[0], face[1], face[2]));
+            }
         }
     }
 
     public static class Cube extends Cuboid {
         public Cube(double x, double y, double z, double scale, Color colour) {
             super(x, y, z, 1,1,1, scale, colour);
+        }
+    }
+
+    public static class Plane extends Shape {
+        public Plane(double x, double y, double z, double width, double length, double scale, Color colour) {
+            super(x, y, z, scale, colour);
+
+            // z axis plane
+            Vertex A = new Vertex(1, 0, 1);
+            Vertex B = new Vertex(1, 0, -1);
+            Vertex C = new Vertex(-1, 0, 1);
+            Vertex D = new Vertex(-1, 0, -1);
+
+            /* y axis plane
+            Vertex A = new Vertex(1, 1, 0);
+            Vertex B = new Vertex(1, -1, 0);
+            Vertex C = new Vertex(-1, 1, 0);
+            Vertex D = new Vertex(-1, -1, 0);
+             */
+
+            vertices = new Vertex[]{A,B,C,D};
+
+            for (Vertex v : vertices) { // change to fill 1x1 space
+                v.x *= width/2;
+                //v.z *= length/2;
+                v.y *= length/2;
+            }
+
+            Vertex[][] faces = { // triangles
+                    {A, B, C}, {D, B, C},
+            };
+
+            for (Vertex[] face : faces) {
+                triangles.add(new Triangle(face[0], face[1], face[2]));
+            }
         }
     }
 
@@ -130,11 +162,11 @@ public class Main {
             super(new double[][]{
                     //Top
                     {Math.sqrt(3), l/2, 1},
-                    {0,l/2,2},
+                    {Math.sqrt(3), l/2, -1},
                     {-Math.sqrt(3), l/2, 1},
                     {-Math.sqrt(3), l/2, -1},
+                    {0,l/2,2},
                     {0,l/2,-2},
-                    {Math.sqrt(3), l/2, -1},
 
                     //Bottom
                     {Math.sqrt(3), -l/2, 1},
@@ -191,8 +223,11 @@ public class Main {
         Hexagonal_Prism hex_prism = new Hexagonal_Prism(-2, 2.1, 15, 10, 0.5, Color.ORANGE);
         hex_prism.setRotation(0, 0, 0);
 
-        // Sphere
-        Icosahedron icosahedron = new Icosahedron(1.5, 1.6, 16, 0.5, Color.pink);
+        // Icosahedron
+        Icosahedron icosahedron = new Icosahedron(2.1, 1.2, 17, 0.5, Color.pink);
+
+        // Plane
+        Plane plane = new Plane(0, 0, 0.01, 1, 1, 1, Color.YELLOW);
 
         // Camera position
         Shape camera = new Shape(0,0,0,1);
@@ -202,6 +237,7 @@ public class Main {
                 cuboid,
                 light,
                 cube1,
+                plane,
                 //hex_prism,
                 new Pyramid(2, 0, 15, 1, Color.GREEN),
                 new Pyramid(-3, 0, 17.5, 0.6, Color.BLUE),
@@ -246,7 +282,7 @@ public class Main {
                         g2.fillPolygon(p);
 
                         // draw wireframe
-                        g2.setColor(shape.colour.darker());
+                        //g2.setColor(shape.colour.darker());
                         g2.drawPolygon(p);
                     }
                 }
