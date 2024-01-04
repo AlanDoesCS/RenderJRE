@@ -5,15 +5,14 @@ public class Shape {
     public class Triangle {
         public Vertex[] points;
         public Vertex midpoint;
-
-        public Triangle(Vertex[] array) {
+        private void init(Vertex[] array) {
             points = array;
             if (array.length > 1) {
                 double sum_x = 0, sum_y = 0, sum_z = 0;
-                for (int vertex=0; vertex < array.length; vertex++) {
-                    sum_x += array[vertex].x;
-                    sum_y += array[vertex].y;
-                    sum_z += array[vertex].z;
+                for (Vertex value : array) {
+                    sum_x += value.x;
+                    sum_y += value.y;
+                    sum_z += value.z;
                 }
 
                 midpoint = new Vertex(sum_x/array.length, sum_y/array.length, sum_z/ array.length);
@@ -22,6 +21,14 @@ public class Shape {
             } else {
                 midpoint = new Vertex(0,0,0);
             }
+        }
+
+        public Triangle(Vertex[] array) {
+            init(array);
+        }
+
+        public Triangle(Vertex vertex, Vertex vertex1, Vertex vertex2) {
+            init(new Vertex[] {vertex, vertex1, vertex2});
         }
     }
 
@@ -81,6 +88,9 @@ public class Shape {
 
     public Shape(double[][] vertex_array, double x, double y, double z, double scale) { // default colour
         init(vertex_array, x, y, z, scale, Color.BLACK);
+    }
+    public Shape(double x, double y, double z, double scale, Color colour) { // Empty vertices - Intended only for temporary purposes
+        init(new double[][]{}, x, y, z, scale, colour);
     }
     public Shape(double x, double y, double z, double scale) { // Empty vertices - Intended only for temporary purposes
         init(new double[][]{}, x, y, z, scale, Color.BLACK);

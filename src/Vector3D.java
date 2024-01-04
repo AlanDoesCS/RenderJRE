@@ -13,10 +13,24 @@ public class Vector3D {
         this.k = array[2];
     }
 
+    public Vector3D(Vertex a, Vertex b) {
+        this.i = b.x - a.x;
+        this.j = b.y - a.y;
+        this.k = b.z - a.z;
+    }
+
     public Vector3D() {}
 
     public double length() {
         return Math.sqrt(i*i + j*j + k*k);
+    }
+
+    public void normalise() {
+        double len = this.length();
+
+        this.i /= len;
+        this.j /= len;
+        this.k /= len;
     }
 
     public Vector3D cross(Vector3D v, Vector3D w) {
@@ -25,6 +39,19 @@ public class Vector3D {
         result.i = v.j*w.k - v.k*w.j;
         result.j = v.k*w.i - v.i*w.k;
         result.k = v.i*w.j - v.j*w.i;
+
+        return result;
+    }
+
+    public Vector3D normal(Shape.Triangle triangle) { // returns cross product of 2 vectors formed by the triangle
+        Vector3D result = new Vector3D();
+
+        Vector3D AB = new Vector3D(triangle.points[0], triangle.points[1]);
+        Vector3D AC = new Vector3D(triangle.points[0], triangle.points[2]);
+
+        result.i = AB.j*AC.k - AB.k*AC.j;
+        result.j = AB.k*AC.i - AB.i*AC.k;
+        result.k = AB.i*AC.j - AB.j*AC.i;
 
         return result;
     }

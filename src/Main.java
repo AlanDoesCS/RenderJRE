@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 public class Main {
+    public static double clamp (double min, double value, double max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
     public static int RandomInt(int min, int max) {
         return (int) ((Math.random() * (max - min)) + min);
     }
@@ -14,16 +18,57 @@ public class Main {
         return (Math.random() * (max - min)) + min;
     }
 
-    public static class Cube extends Shape {
-        public Cube(double x, double y, double z, double scale, Color colour) {
-            super(new double[][]{
-                    //Top
-                    {1,1,1},{-1,1,1},{1,1,-1},{-1,1,-1},
-                    //Bottom
-                    {1,-1,1},{-1,-1,1},{1,-1,-1},{-1,-1,-1}
-            }, x,y,z,scale, colour);
+    public static class Cuboid extends Shape {
+        public Cuboid(double x, double y, double z, double width, double length, double height, double scale, Color colour) {
+            super(x, y, z, scale, colour);
+
+            Vertex[][][] Vertices = new Vertex[2][2][2]; //split into halves: 8/2 -> 4/2 -> 2/2 -> Specific vertex
+            vertices = new Vertex[8];
+
+            int vertex=0;
+            int i=0, j, k;
+            for (double slice_x = -0.5; slice_x<=0.5; slice_x++) {
+                j=0;
+                for (double slice_y = -0.5; slice_y<=0.5; slice_y++) {
+                    k=0;
+                    for (double slice_z = -0.5; slice_z<=0.5; slice_z++) {
+                        Vertices[i][j][k] = new Vertex(width*slice_x, height*slice_y, length*slice_z);
+                        vertices[vertex]=Vertices[i][j][k];
+                        k++;
+                        vertex++;
+                    }
+                    j++;
+                }
+                i++;
+            }
+
+            // 2 left triangles
+            triangles.add( new Triangle( Vertices[0][0][0], Vertices[0][0][1], Vertices[0][1][1]) );
+            triangles.add( new Triangle( Vertices[0][0][0], Vertices[0][1][0], Vertices[0][1][1]) );
+            // 2 right triangles
+            triangles.add( new Triangle( Vertices[1][0][0], Vertices[1][0][1], Vertices[1][1][1]) );
+            triangles.add( new Triangle( Vertices[1][0][0], Vertices[1][1][0], Vertices[1][1][1]) );
+            // 2 bottom triangles
+            triangles.add( new Triangle( Vertices[0][0][0], Vertices[0][0][1], Vertices[1][0][0]) );
+            triangles.add( new Triangle( Vertices[1][0][1], Vertices[0][0][1], Vertices[1][0][0]) );
+            // 2 top triangles
+            triangles.add( new Triangle( Vertices[0][1][0], Vertices[0][1][1], Vertices[1][1][0]) );
+            triangles.add( new Triangle( Vertices[1][1][1], Vertices[0][1][1], Vertices[1][1][0]) );
+            // 2 front triangles
+            triangles.add( new Triangle( Vertices[0][0][0], Vertices[0][1][0], Vertices[1][1][0]) );
+            triangles.add( new Triangle( Vertices[0][0][0], Vertices[1][0][0], Vertices[1][1][0]) );
+            // 2 back triangles
+            triangles.add( new Triangle( Vertices[0][0][1], Vertices[0][1][1], Vertices[1][1][1]) );
+            triangles.add( new Triangle( Vertices[0][0][1], Vertices[1][0][1], Vertices[1][1][1]) );
         }
     }
+
+    public static class Cube extends Cuboid {
+        public Cube(double x, double y, double z, double scale, Color colour) {
+            super(x, y, z, 1,1,1, scale, colour);
+        }
+    }
+
     public static class Pyramid extends Shape {
         public Pyramid(double x, double y, double z, double scale, Color colour) {
             super(new double[][]{
@@ -65,7 +110,7 @@ public class Main {
             int i=0;
             for (double x_cor=-1; x_cor<1.; x_cor+=2./resolution) {
                 for (double y_cor=-1; y_cor<1.; y_cor+=2./resolution) {
-                    double z_cor = 0;
+                    double z_cor = Math.sqrt(1+ x_cor*x_cor - y_cor*y_cor);
                     sphere[i] = new double[]{x, y, z};
                     i++;
                 }
@@ -79,25 +124,30 @@ public class Main {
         Renderer RenderJRE = new Renderer(1000, 2,  1000, 1000);
 
         //Light above
-        LightSource light = new LightSource(-2,3,15,1, Color.WHITE);
+        LightSource light = new LightSource(-2,3,15,10, Color.WHITE);
 
         //Cube
-        Cube cube1 = new Cube(0, -3, 15, 1, Color.RED);
+        Cube cube1 = new Cube(2, -3, 15, 1, Color.RED);
         cube1.setRotation(0, 10, 0);
 
+        //Cuboid
+        Cuboid cuboid = new Cuboid(-2, -3, 20, 3.5, 2, 1.1, 1.5, Color.gray);
+        cuboid.setRotation(0,0,10);
+
         // Hexagonal Prism
-        Hexagonal_Prism hex_prism = new Hexagonal_Prism(0, 0, 30, 2, 0.5, Color.ORANGE);
-        hex_prism.setRotation(45, 45, 0);
+        Hexagonal_Prism hex_prism = new Hexagonal_Prism(-2, 2.1, 15, 10, 0.5, Color.ORANGE);
+        hex_prism.setRotation(90, 0, 0);
 
         // Camera position
         Shape camera = new Shape(0,0,0,1);
 
         Shape[] unsortedObjs = {
+                cuboid,
                 light,
                 cube1,
-                hex_prism,
-                new Pyramid(0, 0, 15, 1, Color.GREEN),
-                new Pyramid(0, 0, 17.5, 0.6, Color.BLUE),
+                //hex_prism,
+                new Pyramid(2, 0, 15, 1, Color.GREEN),
+                new Pyramid(-3, 0, 17.5, 0.6, Color.BLUE),
                 new Cube(0, 0, 20, 0.4, Color.MAGENTA)
         };
 
@@ -113,39 +163,33 @@ public class Main {
 
                 // Perform most efficient sorting algorithm based on input size
                 Shape[] orderedObjs = Renderer.order_shapes(unsortedObjs, camera);
-                g2.setStroke(new BasicStroke(10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+
                 for (int shape_index = orderedObjs.length-1; shape_index>=0; shape_index--) {
                     Shape shape = orderedObjs[shape_index];
 
                     // Perform most efficient sorting algorithm based on input size
-                    Shape.Triangle[] orderedTriangles = Renderer.order_triangles(shape.triangles, camera);
+                    Shape.Triangle[] orderedTriangles = Renderer.order_triangles(shape.triangles, shape, camera);
 
-                    double[][] vertex_points = RenderJRE.render(shape);
-                    double[][][] Triangle_Points = RenderJRE.render_triangles(shape);
+                    Vertex2D[] vertex_points = RenderJRE.render(shape);
+                    Vertex2D[][] Triangle_Points = RenderJRE.render_triangles(orderedTriangles, shape);
 
-                    g2.setColor(shape.colour.darker());
+                    // Fill shapes
+                    for (int tri_index = orderedTriangles.length-1; tri_index>=0; tri_index--) {
+                        Color lit = RenderJRE.diffuseBasic(shape.colour, light, orderedTriangles[tri_index], 100); //set distance properly!!!!
+                        //g2.setColor(lit);
+                        g2.setColor(shape.colour);
 
-                    for (double[] point : vertex_points) {
-                        for (double[] next_point : vertex_points) {
-                            if (next_point != point) {
-                                float WindowP1_PosY = (float) (RenderJRE.WindowResY-point[1]);
-                                float WindowP2_PosY = (float) (RenderJRE.WindowResY-next_point[1]);
-
-                                Line2D line = new Line2D.Float((float) point[0], WindowP1_PosY, (float) next_point[0], WindowP2_PosY);
-                                g2.draw(line);
-                            }
-                        }
-                    }
-
-                    g2.setColor(shape.colour);
-
-                    for (double[][] triangle : Triangle_Points) {
-                        int[] xpoints = {(int)triangle[0][0], (int)triangle[1][0], (int)triangle[2][0]};
-                        int[] ypoints = {(int) (RenderJRE.WindowResY-triangle[0][1]), (int) (RenderJRE.WindowResY-triangle[1][1]), (int) (RenderJRE.WindowResY-triangle[2][1])};
+                        Vertex2D[] triangle = Triangle_Points[tri_index];
+                        int[] xpoints = {(int)triangle[0].x, (int)triangle[1].x, (int)triangle[2].x};
+                        int[] ypoints = {(int) (RenderJRE.WindowResY-triangle[0].y), (int) (RenderJRE.WindowResY-triangle[1].y), (int) (RenderJRE.WindowResY-triangle[2].y)};
 
                         Polygon p = new Polygon(xpoints, ypoints, 3);  // This polygon represents a triangle with the above
-                        //   vertices.
-                        g2.fillPolygon(p);
+                        // fill shape vertices.
+                        //g2.fillPolygon(p);
+
+                        // draw wireframe
+                        g2.setColor(shape.colour.darker());
+                        g2.drawPolygon(p);
                     }
                 }
             }
