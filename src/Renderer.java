@@ -281,6 +281,7 @@ public class Renderer {
                     }
 
                     for (int tri_index = orderedTriangles.length - 1; tri_index >= 0; tri_index--) {
+                        g2.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
                         if (diffuse) {
                             Color lit = diffuseBasic(shape.colour, light, orderedTriangles[tri_index]);
