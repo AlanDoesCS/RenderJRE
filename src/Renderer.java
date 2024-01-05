@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Renderer {
     public static double clamp (double min, double value, double max) {
@@ -180,6 +181,18 @@ public class Renderer {
     }
 
     public static Shape.Triangle[] order_triangles(ArrayList<Shape.Triangle> list, Shape object, Shape camera) {
+        // remove triangles with z component normals facing away
+        Vector3D normal_test = new Vector3D();
+
+        Iterator<Shape.Triangle> itr = list.iterator();
+        while (itr.hasNext()) {
+            Shape.Triangle t = itr.next();
+            normal_test = normal_test.normal(t);
+            if (normal_test.k > 0) {
+                itr.remove();
+            }
+        }
+
         // Convert ArrayList to array
         Shape.Triangle[] unsorted = new Shape.Triangle[list.size()];
         for (int i=0; i<list.size(); i++) {
