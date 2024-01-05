@@ -199,8 +199,8 @@ public class Renderer {
         return sorted;
     }
 
-    public Color diffuseBasic(Color base, DirectLight light, Shape.Triangle object, double distance) {
-        Vector3D colorVect = new Vector3D(light.ambient.i, light.ambient.j, light.ambient.k);
+    public Color diffuseBasic(Color base, DirectLight light, Shape.Triangle object) {
+        Vector3D colorVect = new Vector3D(light.ambient.getRed(), light.ambient.getGreen(), light.ambient.getBlue());
 
         Vector3D normal = new Vector3D();
         normal = normal.normal(object);

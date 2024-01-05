@@ -50,16 +50,16 @@ public class Main {
             }
 
             Vertex[][] faces = { // triangles
-                    {A, B, I}, {A, B, J},
-                    {A, I, E}, {A, J, F},
-                    {B, I, G}, {B, J, H},
-                    {A, E, F}, {B, H, G},
-                    {I, E, K}, {I, G, K},
-                    {J, F, L}, {J, H, L},
-                    {E, K, C}, {F, L, C},
-                    {H, L, D}, {G, K, D},
-                    {E, F, C}, {H, G, D},
-                    {K, C, D}, {L, C, D}
+                    {C, F, E}, {A, E, F},
+                    {A, I, E}, {E, K, C},
+                    {C, L, F}, {F, J, A},
+                    {A, J, B}, {B, I, A},
+                    {E, I, K}, {G, K, I},
+                    {C, K, D}, {D, L, C},
+                    {F, L, J}, {H, J, L},
+                    {J, H, B}, {L, D, H},
+                    {K, G, D}, {I, G, B},
+                    {D, G, H}, {B, H, G}
             };
 
             for (Vertex[] face : faces) {
@@ -215,7 +215,7 @@ public class Main {
         hex_prism.setRotation(0, 0, 0);
 
         // Icosahedron
-        Icosahedron icosahedron = new Icosahedron(2.1, 1.2, 17, 0.5, Color.pink);
+        Icosahedron icosahedron = new Icosahedron(2.1, 1.2, 17, 1, Color.pink);
 
         // Plane
         Plane plane = new Plane(0, -2.5, 10, 3, 1, 1, Color.YELLOW);
@@ -230,8 +230,8 @@ public class Main {
                 plane,
                 //hex_prism,
                 new Pyramid(2, 0, 15, 1, Color.GREEN),
-                new Pyramid(-3, 0, 17.5, 0.6, Color.BLUE),
-                new Cube(0, 0, 20, 0.4, Color.MAGENTA)
+                //new Pyramid(-3, 0, 17.5, 0.6, Color.BLUE),
+                //new Cube(0, 0, 20, 0.4, Color.MAGENTA)
         };
 
         JFrame fr = new JFrame();
@@ -259,7 +259,7 @@ public class Main {
 
                     // Fill shapes
                     for (int tri_index = orderedTriangles.length-1; tri_index>=0; tri_index--) {
-                        Color lit = RenderJRE.diffuseBasic(shape.colour, light, orderedTriangles[tri_index], 100); //set distance properly!!!!
+                        Color lit = RenderJRE.diffuseBasic(shape.colour, light, orderedTriangles[tri_index]);
                         g2.setColor(lit);
                         //g2.setColor(shape.colour);
 
@@ -272,7 +272,7 @@ public class Main {
                         g2.fillPolygon(p);
 
                         // draw wireframe
-                        //g2.setColor(shape.colour.darker());
+                        g2.setColor(shape.colour.darker());
                         g2.drawPolygon(p);
                     }
                 }
