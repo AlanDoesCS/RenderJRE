@@ -200,7 +200,7 @@ public class Main {
         Renderer RenderJRE = new Renderer(1000, 2,  1000, 1000);
 
         //Light above
-        DirectLight light = new DirectLight(-2,3,15, Color.WHITE);
+        DirectLight light = new DirectLight(1,-3,-2, Color.WHITE);
 
         //Cube
         Cube cube1 = new Cube(2, -3, 15, 1, Color.RED);
@@ -229,7 +229,7 @@ public class Main {
                 cube1,
                 plane,
                 //hex_prism,
-                new Pyramid(2, 0, 15, 1, Color.GREEN),
+                new Pyramid(2.5, 0, 15, 1, Color.GREEN),
                 //new Pyramid(-3, 0, 17.5, 0.6, Color.BLUE),
                 //new Cube(0, 0, 20, 0.4, Color.MAGENTA)
         };
@@ -254,7 +254,6 @@ public class Main {
                     // Perform most efficient sorting algorithm based on input size
                     Shape.Triangle[] orderedTriangles = Renderer.order_triangles(shape.triangles, shape, camera);
 
-                    Vertex2D[] vertex_points = RenderJRE.render(shape);
                     Vertex2D[][] Triangle_Points = RenderJRE.render_triangles(orderedTriangles, shape);
 
                     // Fill shapes
@@ -273,7 +272,7 @@ public class Main {
 
                         // draw wireframe
                         g2.setColor(shape.colour.darker());
-                        g2.drawPolygon(p);
+                        //g2.drawPolygon(p);
                     }
                 }
             }

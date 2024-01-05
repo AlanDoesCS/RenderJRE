@@ -125,7 +125,7 @@ public class Renderer {
 
     public static Shape[] order_shapes(Shape[] unsorted, Shape camera) {
         // perform most efficient sorting algorithm depending on size of array
-        Shape[] sorted = unsorted;
+        Shape[] sorted;
 
         if (unsorted.length < 55) {
             // Binary sort
@@ -199,14 +199,15 @@ public class Renderer {
         return sorted;
     }
 
-    public Color diffuseBasic(Color base, DirectLight light, Shape.Triangle object) {
-        Vector3D colorVect = new Vector3D(light.ambient.getRed(), light.ambient.getGreen(), light.ambient.getBlue());
+    public Color diffuseBasic(Color base, DirectLight light, Shape.Triangle object) { // base == shape color
+        light.direction.normalise();
+        Vector3D colorVect = new Vector3D();
 
         Vector3D normal = new Vector3D();
         normal = normal.normal(object);
         normal.normalise(); // normalise length of the vector
 
-        double diffuseStrength = Math.abs(light.direction.dot(normal));
+        double diffuseStrength = Math.abs(Math.min(0, light.direction.dot(normal)));
 
         colorVect.i = clamp(0,diffuseStrength * base.getRed(), 255);
         colorVect.j = clamp(0,diffuseStrength * base.getGreen(), 255);
