@@ -253,45 +253,8 @@ public class Main {
         fr.setBounds(10, 10, RenderJRE.WindowResX, RenderJRE.WindowResY);
         fr.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        JPanel pn = new JPanel() {
-            @Override
-            public void paint(Graphics g) {
-                Graphics2D g2=(Graphics2D)g.create();
-                //g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
-
-                // Perform most efficient sorting algorithm based on input size
-                Shape[] orderedObjs = Renderer.order_shapes(unsortedObjs, camera);
-
-                for (int shape_index = orderedObjs.length-1; shape_index>=0; shape_index--) {
-                    Shape shape = orderedObjs[shape_index];
-
-                    // Perform most efficient sorting algorithm based on input size
-                    Shape.Triangle[] orderedTriangles = Renderer.order_triangles(shape.triangles, shape, camera);
-
-                    Vertex2D[][] Triangle_Points = RenderJRE.render_triangles(orderedTriangles, shape);
-
-                    // Fill shapes
-                    for (int tri_index = orderedTriangles.length-1; tri_index>=0; tri_index--) {
-                        Color lit = RenderJRE.diffuseBasic(shape.colour, light, orderedTriangles[tri_index]);
-                        g2.setColor(lit);
-                        //g2.setColor(shape.colour);
-
-                        Vertex2D[] triangle = Triangle_Points[tri_index];
-                        int[] xpoints = {(int)triangle[0].x, (int)triangle[1].x, (int)triangle[2].x};
-                        int[] ypoints = {(int) (RenderJRE.WindowResY-triangle[0].y), (int) (RenderJRE.WindowResY-triangle[1].y), (int) (RenderJRE.WindowResY-triangle[2].y)};
-
-                        Polygon p = new Polygon(xpoints, ypoints, 3);  // This polygon represents a triangle with the above
-                        // fill shape vertices.
-                        g2.fillPolygon(p);
-
-                        // draw wireframe
-                        g2.setColor(shape.colour.darker());
-                        g2.drawPolygon(p);
-                    }
-                }
-            }
-        };
+        String a = "-diffuse";
+        JPanel pn = RenderJRE.renderPanel(a, unsortedObjs, camera, light);
 
         fr.setBackground(Color.BLACK);
         fr.add(pn);
