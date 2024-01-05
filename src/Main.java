@@ -140,12 +140,26 @@ public class Main {
 
     public static class Pyramid extends Shape {
         public Pyramid(double x, double y, double z, double scale, Color colour) {
-            super(new double[][]{
-                    //Top
-                    {0,1,0},
-                    //Bottom
-                    {1,-1,1},{-1,-1,1},{1,-1,-1},{-1,-1,-1}
-            }, x,y,z,scale, colour);
+            super(x, y, z, scale, colour);
+
+            Vertex A = new Vertex(1, -1, 1);
+            Vertex B = new Vertex(1, -1, -1);
+            Vertex C = new Vertex(-1, -1, 1);
+            Vertex D = new Vertex(-1, -1, -1);
+
+            Vertex E = new Vertex(0, 1, 0);
+
+            vertices = new Vertex[]{A,B,C,D,E};
+
+            Vertex[][] faces = { // triangles
+                    {E, A, B}, {E, B, D},
+                    {E, D, C}, {E, C, A},
+                    {B, A, C}, {C, D, B},
+            };
+
+            for (Vertex[] face : faces) {
+                triangles.add(new Triangle(face[0], face[1], face[2]));
+            }
         }
     }
     public static class Hexagonal_Prism extends Shape {
@@ -216,6 +230,7 @@ public class Main {
 
         // Icosahedron
         Icosahedron icosahedron = new Icosahedron(2.1, 1.2, 17, 1, Color.pink);
+        icosahedron.setRotation(0, 10, 0);
 
         // Plane
         Plane plane = new Plane(0, -2.5, 10, 3, 1, 1, Color.YELLOW);
@@ -230,8 +245,8 @@ public class Main {
                 plane,
                 //hex_prism,
                 new Pyramid(2.5, 0, 15, 1, Color.GREEN),
-                //new Pyramid(-3, 0, 17.5, 0.6, Color.BLUE),
-                //new Cube(0, 0, 20, 0.4, Color.MAGENTA)
+                new Pyramid(-3, 0, 17.5, 0.6, Color.BLUE),
+                new Cube(-2, 3, 18.1, 0.7, Color.MAGENTA)
         };
 
         JFrame fr = new JFrame();
