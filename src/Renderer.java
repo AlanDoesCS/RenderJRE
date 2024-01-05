@@ -5,19 +5,22 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 public class Renderer {
+    final double degToRad = Math.PI / 180; // ratio of degrees to radians
     public static double clamp (double min, double value, double max) {
         return Math.max(min, Math.min(max, value));
     }
 
     public int zoom;
-    public double FocalLength;
+    public double FOV, AspectRatio, ZFar = 10, ZNear = 1;
     public int WindowResX, WindowResY;
-    public Renderer(int zoom, double FocalLength, int WindowResX, int WindowResY)
+    public Renderer(int zoom, double FOV, int WindowResX, int WindowResY)
     {
         this.zoom = zoom;
-        this.FocalLength = FocalLength;
+        this.FOV = FOV*degToRad;
         this.WindowResX = WindowResX;
         this.WindowResY = WindowResY;
+        this.AspectRatio = (double) WindowResY / WindowResX;
+
     }
 
     public Vertex2D project3Dto2D(Vertex vertex, Vertex origin, double objScale) {
@@ -27,28 +30,16 @@ public class Renderer {
 
         Vertex2D projected = new Vertex2D();
 
-        projected.x = (double) WindowResX /2 + (zoom * relative_x * FocalLength)/(relative_z+FocalLength);
-        projected.y = WindowResY - ((double) WindowResY /2) + (zoom * relative_y * FocalLength)/(relative_z+FocalLength);
+        double fl = 1/Math.tan(FOV/2);
+        double ZNormal = ZFar / (ZFar - ZNear);
+        projected.x = (double) WindowResX/2 + zoom * (AspectRatio*fl*relative_x)/relative_z;
+        projected.y = (double) WindowResY/2 + (zoom * (fl * relative_y) / relative_z);
+
+        projected.z = relative_z * ZNormal - ZNear * ZNormal;
 
         return projected;
     }
 
-    public Vertex2D[] render(Shape shape) {
-        // Get length of rendered vertex array
-        int vertex_array_length = shape.vertices.length;
-
-        Vertex2D[] vertex_array = new Vertex2D[vertex_array_length]; // convert x,y,z into x,y
-
-        // Project 3D vertices onto 2D plane
-
-        int i=0;
-        for (Vertex vertex : shape.vertices) {
-            vertex_array[i] = project3Dto2D(vertex, shape.origin, shape.scale);
-            i++;
-        }
-
-        return vertex_array;
-    }
     public Vertex2D[][] render_triangles(Shape.Triangle[] triangles, Shape parent) {
         // Get length of rendered vertex array
         int tri_list_length = triangles.length;
@@ -79,9 +70,11 @@ public class Renderer {
     }
 
     public static double distance(Shape.Triangle triangle, Shape parent, Shape shape2) {
-        double dx = parent.origin.x + triangle.midpoint.x - shape2.origin.x;
-        double dy = parent.origin.y + triangle.midpoint.y - shape2.origin.y;
-        double dz = parent.origin.z + triangle.midpoint.z - shape2.origin.z;
+        double s = parent.scale;
+
+        double dx = parent.origin.x + s*triangle.midpoint.x - shape2.origin.x;
+        double dy = parent.origin.y + s*triangle.midpoint.y - shape2.origin.y;
+        double dz = parent.origin.z + s*triangle.midpoint.z - shape2.origin.z;
 
         return Math.sqrt(dx*dx + dy*dy + dz*dz); // return magnitude of displacement vector
     }
@@ -142,8 +135,8 @@ public class Renderer {
     }
 
     // --------------------------- Tris -----------------------------
-    public static int binSearch(Shape.Triangle[] array, int l, int r, Shape.Triangle key, Shape object, Shape reference_shape) { // find element just further away than given reference shape
-        double key_distance = distance(key, object, reference_shape);
+    public int binSearch(Shape.Triangle[] array, int l, int r, Shape.Triangle key, Shape object, Shape reference_shape) { // find element just further away than given reference shape
+        double key_distance = distance(key, object, reference_shape); // distance(key, object, reference_shape);
 
         while (l<=r) {
             int mid = l + (r-l)/2;
@@ -159,7 +152,7 @@ public class Renderer {
 
         return l;
     }
-    public static Shape.Triangle[] binSort(Shape.Triangle[] array, Shape object, Shape camera) { // binary insertion sort
+    public Shape.Triangle[] binSort(Shape.Triangle[] array, Shape object, Shape camera) { // binary insertion sort
         int i, loc, j;
         Shape.Triangle selected;
         int n = array.length;
@@ -182,7 +175,7 @@ public class Renderer {
         return array;
     }
 
-    public static Shape.Triangle[] order_triangles(ArrayList<Shape.Triangle> list, Shape object, Shape camera) {
+    public Shape.Triangle[] order_triangles(ArrayList<Shape.Triangle> list, Shape object, Shape camera) {
         // remove triangles with z component normals facing away
         Vector3D normal_test = new Vector3D();
 

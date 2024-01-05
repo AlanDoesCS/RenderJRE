@@ -145,24 +145,60 @@ public class Main {
         }
     }
     public static class Hexagonal_Prism extends Shape {
-        public Hexagonal_Prism(double x, double y, double z, double l, double scale, Color colour) {
-            super(new double[][]{
-                    //Top
-                    {Math.sqrt(3), l/2, 1},
-                    {Math.sqrt(3), l/2, -1},
-                    {-Math.sqrt(3), l/2, 1},
-                    {-Math.sqrt(3), l/2, -1},
-                    {0,l/2,2},
-                    {0,l/2,-2},
+        public Hexagonal_Prism(double x, double y, double z, double length, double scale, Color colour) {
+            super(x, y, z, scale, colour);
 
-                    //Bottom
-                    {Math.sqrt(3), -l/2, 1},
-                    {0,-l/2,2},
-                    {-Math.sqrt(3), -l/2, 1},
-                    {-Math.sqrt(3), -l/2, -1},
-                    {0,-l/2,-2},
-                    {Math.sqrt(3), -l/2, -1}
-            }, x,y,z,scale, colour);
+            double r3 = Math.sqrt(3);
+            double l = length/2;
+
+            Vertex A = new Vertex(r3, l, 1);
+            Vertex B = new Vertex(r3, l, -1);
+            Vertex C = new Vertex(-r3, l, 1);
+            Vertex D = new Vertex(-r3, l, -1);
+            Vertex E = new Vertex(0,l,2);
+            Vertex F = new Vertex(0,l,-2);
+
+            Vertex G = new Vertex(r3, -l, 1);
+            Vertex H = new Vertex(r3, -l, -1);
+            Vertex I = new Vertex(-r3, -l, 1);
+            Vertex J = new Vertex(-r3, -l, -1);
+            Vertex K = new Vertex(0,-l,2);
+            Vertex L = new Vertex(0,-l,-2);
+
+            vertices = new Vertex[]{A,B,C,D,E,F,G,H,I,J,K,L};
+
+            for (Vertex v : vertices) { // change to fill 1x1 space
+                v.x /= 2;
+                v.y /= 2;
+                v.z /= 2;
+            }
+
+            Vertex[][] faces = { // triangles
+                    {A, E, K}, {K, G, A},
+                    {B, A, G}, {G, H, B},
+                    {F, B, H}, {H, L, F},
+                    {D, F, L}, {L, J, D},
+                    {C, D, J}, {J, I, C},
+                    {E, C, I}, {I, K, E},
+                    //Sides
+                    {F, D, C}, {F, C, E},
+                    {F, E, A}, {F, A, B},
+
+                    {L, H, G}, {L, G, K},
+                    {L, K, I}, {L, I, J},
+            };
+
+            ///*
+            for (Vertex[] face : faces) { // debug
+                Vertex temp = face[0];
+                face[0] = face[2];
+                face[2] = temp;
+            }
+             //*/
+
+            for (Vertex[] face : faces) {
+                triangles.add(new Triangle(face[0], face[1], face[2]));
+            }
         }
     }
 
@@ -192,9 +228,6 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        //create renderer Object
-        Renderer RenderJRE = new Renderer(1000, 2,  1000, 1000);
-
         //Light above
         DirectLight light = new DirectLight(1,-3,-2, Color.WHITE);
 
@@ -208,7 +241,7 @@ public class Main {
 
         // Hexagonal Prism
         Hexagonal_Prism hex_prism = new Hexagonal_Prism(-2, 2.1, 15, 10, 0.5, Color.ORANGE);
-        hex_prism.setRotation(0, 0, 0);
+        hex_prism.setRotation(90, 0, 0);
 
         // Icosahedron
         Icosahedron icosahedron = new Icosahedron(2.1, 1.2, 17, 1, Color.pink);
@@ -228,14 +261,16 @@ public class Main {
                 //hex_prism,
                 new Pyramid(2.5, 0, 15, 1, Color.GREEN),
                 new Pyramid(-3, 0, 17.5, 0.6, Color.BLUE),
-                new Cube(-2, 3, 18.1, 0.7, Color.MAGENTA)
+                new Cube(-1.2, 3, 18.1, 0.7, Color.MAGENTA)
         };
 
+        //create renderer Object
+        Renderer RenderJRE = new Renderer(1000, 75,  1000, 1000);
         JFrame fr = new JFrame();
         fr.setBounds(10, 10, RenderJRE.WindowResX, RenderJRE.WindowResY);
         fr.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        String a = "-diffuse";
+        String a = "-diffuse -cel";
         JPanel pn = RenderJRE.renderPanel(a, unsortedObjs, camera, light);
 
         fr.setBackground(Color.BLACK);
