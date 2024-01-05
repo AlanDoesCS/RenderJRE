@@ -131,23 +131,23 @@ public class Shape {
     private void rotateX(double theta_x) { // theta is in radians
         for (Vertex vertex : vertices) {
             // vertex.x stays the same
-            vertex.y = (vertex.y * Math.cos(theta_x)) + (vertex.z * Math.sin(theta_x));
-            vertex.z = (vertex.y * -Math.sin(theta_x)) + (vertex.z * Math.cos(theta_x));
+            vertex.y = (vertex.y * Math.cos(theta_x)) + (vertex.z * -Math.sin(theta_x));
+            vertex.z = (vertex.y * Math.sin(theta_x)) + (vertex.z * Math.cos(theta_x));
         }
     }
 
     private void rotateY(double theta_y) { // theta is in radians
         for (Vertex vertex : vertices) {
-            vertex.x = (vertex.x * Math.cos(theta_y)) + (vertex.z * -Math.sin(theta_y));
+            vertex.x = (vertex.x * Math.cos(theta_y)) + (vertex.z * Math.sin(theta_y));
             // vertex.y stays the same
-            vertex.z = (vertex.x * Math.sin(theta_y)) + (vertex.z * Math.cos(theta_y));
+            vertex.z = (vertex.x * -Math.sin(theta_y)) + (vertex.z * Math.cos(theta_y));
         }
     }
 
     private void rotateZ(double theta_z) { // theta is in radians
         for (Vertex vertex : vertices) {
-            vertex.x = (vertex.x * Math.cos(theta_z)) + (vertex.y * Math.sin(theta_z));
-            vertex.y = (vertex.x * -Math.sin(theta_z))+ (vertex.y * Math.cos(theta_z));
+            vertex.x = (vertex.x * Math.cos(theta_z)) + (vertex.y * -Math.sin(theta_z));
+            vertex.y = (vertex.x * Math.sin(theta_z))+ (vertex.y * Math.cos(theta_z));
             // vertex.z stays the same
         }
     }
