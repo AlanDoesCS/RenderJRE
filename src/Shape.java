@@ -128,27 +128,33 @@ public class Shape {
         this.scale = new_scale;
     }
     // Shape rotation using rotation matrices
-    private void rotateX(double theta_x) { // theta is in radians
+    private void rotateX(double theta_x) {
         for (Vertex vertex : vertices) {
-            // vertex.x stays the same
-            vertex.y = (vertex.y * Math.cos(theta_x)) + (vertex.z * -Math.sin(theta_x));
-            vertex.z = (vertex.y * Math.sin(theta_x)) + (vertex.z * Math.cos(theta_x));
+            double newY = (vertex.y * Math.cos(theta_x)) + (vertex.z * -Math.sin(theta_x));
+            double newZ = (vertex.y * Math.sin(theta_x)) + (vertex.z * Math.cos(theta_x));
+
+            vertex.y = newY;
+            vertex.z = newZ;
         }
     }
 
-    private void rotateY(double theta_y) { // theta is in radians
+    private void rotateY(double theta_y) {
         for (Vertex vertex : vertices) {
-            vertex.x = (vertex.x * Math.cos(theta_y)) + (vertex.z * Math.sin(theta_y));
-            // vertex.y stays the same
-            vertex.z = (vertex.x * -Math.sin(theta_y)) + (vertex.z * Math.cos(theta_y));
+            double newX = (vertex.x * Math.cos(theta_y)) + (vertex.z * Math.sin(theta_y));
+            double newZ = (vertex.x * -Math.sin(theta_y)) + (vertex.z * Math.cos(theta_y));
+
+            vertex.x = newX;
+            vertex.z = newZ;
         }
     }
 
-    private void rotateZ(double theta_z) { // theta is in radians
+    private void rotateZ(double theta_z) {
         for (Vertex vertex : vertices) {
-            vertex.x = (vertex.x * Math.cos(theta_z)) + (vertex.y * -Math.sin(theta_z));
-            vertex.y = (vertex.x * Math.sin(theta_z))+ (vertex.y * Math.cos(theta_z));
-            // vertex.z stays the same
+            double newX = (vertex.x * Math.cos(theta_z)) + (vertex.y * -Math.sin(theta_z));
+            double newY = (vertex.x * Math.sin(theta_z)) + (vertex.y * Math.cos(theta_z));
+
+            vertex.x = newX;
+            vertex.y = newY;
         }
     }
 

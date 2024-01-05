@@ -218,7 +218,7 @@ public class Main {
 
         //Cube
         Cube cube1 = new Cube(2, -3, 15, 1, Color.RED);
-        cube1.setRotation(0, 10, 0);
+        cube1.setRotation(0, 0, 0);
 
         //Cuboid
         Cuboid cuboid = new Cuboid(-2, -3, 20, 3.5, 2, 1.1, 1.5, Color.gray);
@@ -230,7 +230,7 @@ public class Main {
 
         // Icosahedron
         Icosahedron icosahedron = new Icosahedron(2.1, 1.2, 17, 1, Color.pink);
-        icosahedron.setRotation(0, 10, 0);
+        icosahedron.setRotation(0, 0, 0);
 
         // Plane
         Plane plane = new Plane(0, -2.5, 10, 3, 1, 1, Color.YELLOW);
@@ -287,7 +287,7 @@ public class Main {
 
                         // draw wireframe
                         g2.setColor(shape.colour.darker());
-                        //g2.drawPolygon(p);
+                        g2.drawPolygon(p);
                     }
                 }
             }
