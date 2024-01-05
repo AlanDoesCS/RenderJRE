@@ -2,24 +2,6 @@ import java.awt.*;
 import javax.swing.*;
 
 public class Main {
-    public static double clamp (double min, double value, double max) {
-        return Math.max(min, Math.min(max, value));
-    }
-    public static double round (double value, int decimal_places) {
-        double tens = Math.pow(10, decimal_places);
-        return Math.round(value * tens) / tens;
-    }
-
-    public static int RandomInt(int min, int max) {
-        return (int) ((Math.random() * (max - min)) + min);
-    }
-    public static float RandomFloat(float min, float max) {
-        return (float) (Math.random() * (max - min)) + min;
-    }
-    public static double RandomDouble(double min, double max) {
-        return (Math.random() * (max - min)) + min;
-    }
-
     public static class Icosahedron extends Shape {
         public Icosahedron(double x, double y, double z, double scale, Color colour) {
             super(x, y, z, scale, colour);
