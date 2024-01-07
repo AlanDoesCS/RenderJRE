@@ -270,7 +270,7 @@ public class Main {
         fr.setBounds(10, 10, RenderJRE.WindowResX, RenderJRE.WindowResY);
         fr.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        String a = "-diffuse -cel";
+        String a = "-diffuse";
         JPanel pn = RenderJRE.renderPanel(a, unsortedObjs, camera, light);
 
         fr.setBackground(Color.BLACK);
