@@ -1,0 +1,114 @@
+{
+  "Scene": {
+    "Objects":[
+      {
+        "id": "Cube 1",
+        "type": "Cube",
+        "visible": true,
+
+        "coordinate": [2, -3, 15],
+        "rotation": [0, 0, 0],
+
+        "size": {
+          "scale": 1,
+          "width": 1,
+          "length": 1,
+          "height": 1
+        },
+        "color": "RED"
+      },
+
+      {
+        "id": "Cuboid 1",
+        "type": "Cuboid",
+        "visible": true,
+
+        "coordinate": [-2, -3, 20],
+        "rotation": [0, 0, 0],
+
+        "size": {
+          "scale": 1.5,
+          "width": 3.5,
+          "length": 2,
+          "height": 1.1
+        },
+        "color": "gray"
+      },
+
+      {
+        "id": "Hex Prism 1",
+        "type": "Hexagonal_Prism",
+        "visible": false,
+
+        "coordinate": [-2, 2.1, 15],
+        "rotation": [90, 0, 0],
+
+        "size": {
+          "scale": 0.5,
+          "width": 1,
+          "length": 10,
+          "height": 1
+        },
+        "color": "ORANGE"
+      },
+
+      {
+        "id": "Icosahedron 1",
+        "type": "Icosahedron",
+        "visible": true,
+
+        "coordinate": [2.1, 1.3, 17],
+        "rotation": [0, 0, 0],
+
+        "size": {
+          "scale": 1,
+          "width": 1,
+          "length": 1,
+          "height": 1
+        },
+        "color": "pink"
+      },
+
+      {
+        "id": "Floor",
+        "type": "Plane",
+        "visible": true,
+
+        "coordinate": [0, -2.5, 10],
+        "rotation": [0, 0, 0],
+
+        "size": {
+          "scale": 1,
+          "width": 3,
+          "length": 1,
+          "height": 1
+        },
+        "color": "YELLOW"
+      },
+
+      {
+        "id": "Upside down pyramid",
+        "type": "Pyramid",
+        "visible": true,
+
+        "coordinate": [-3, 0.1, 17.5],
+        "rotation": [0, 0, 0],
+
+        "size": {
+          "scale": 0.6,
+          "width": 1,
+          "length": 1,
+          "height": 1
+        },
+        "color": "BLUE"
+      }
+    ],
+    "Lighting": [
+      {
+        "type": "diffuse",
+        "direction": [1, -3, -2],
+        "color": "WHITE"
+      }
+    ]
+  }
+}
