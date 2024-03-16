@@ -1,232 +1,14 @@
-import java.awt.*;
+import Rendering.JREWindow;
+import Rendering.Renderer;
+import Scene.lighting.DirectLight;
+import Scene.objects.*;
+
+import Scene.objects.Shape;
+
+import java.awt.Color;
 import javax.swing.*;
 
 public class Main {
-    public static class Icosahedron extends Shape {
-        public Icosahedron(double x, double y, double z, double scale, Color colour) {
-            super(x, y, z, scale, colour);
-
-            double phi = (1 + Math.sqrt(5)) / 2; // Golden ratio
-
-            Vertex A = new Vertex(0, 1, phi);
-            Vertex B = new Vertex(0, -1, phi);
-            Vertex C = new Vertex(0, 1, -phi);
-            Vertex D = new Vertex(0, -1, -phi);
-
-            Vertex E = new Vertex(1, phi, 0);
-            Vertex F = new Vertex(-1, phi, 0);
-            Vertex G = new Vertex(1, -phi, 0);
-            Vertex H = new Vertex(-1, -phi, 0);
-
-            Vertex I = new Vertex(phi, 0, 1);
-            Vertex J = new Vertex(-phi, 0, 1);
-            Vertex K = new Vertex(phi, 0, -1);
-            Vertex L = new Vertex(-phi, 0, -1);
-
-            vertices = new Vertex[]{A,B,C,D,E,F,G,H,I,J,K,L};
-
-            for (Vertex v : vertices) { // change to fill 1x1 space
-                v.x /= 2;
-                v.y /= 2;
-                v.z /= 2;
-            }
-
-            Vertex[][] faces = { // triangles
-                    {C, F, E}, {A, E, F},
-                    {A, I, E}, {E, K, C},
-                    {C, L, F}, {F, J, A},
-                    {A, J, B}, {B, I, A},
-                    {E, I, K}, {G, K, I},
-                    {C, K, D}, {D, L, C},
-                    {F, L, J}, {H, J, L},
-                    {J, H, B}, {L, D, H},
-                    {K, G, D}, {I, G, B},
-                    {D, G, H}, {B, H, G}
-            };
-
-            for (Vertex[] face : faces) {
-                triangles.add(new Triangle(face[0], face[1], face[2]));
-            }
-        }
-    }
-
-    public static class Cuboid extends Shape {
-        public Cuboid(double x, double y, double z, double width, double length, double height, double scale, Color colour) {
-            super(x, y, z, scale, colour);
-
-            Vertex A = new Vertex(1, 1, 1);
-            Vertex B = new Vertex(1, 1, -1);
-            Vertex C = new Vertex(1, -1, 1);
-            Vertex D = new Vertex(1, -1, -1);
-
-            Vertex E = new Vertex(-1, 1, 1);
-            Vertex F = new Vertex(-1, 1, -1);
-            Vertex G = new Vertex(-1, -1, 1);
-            Vertex H = new Vertex(-1, -1, -1);
-
-            vertices = new Vertex[]{A,B,C,D,E,F,G,H};
-
-            for (Vertex v : vertices) { // change to fill 1x1 space
-                v.x *= width/2;
-                v.y *= height/2;
-                v.z *= length/2;
-            }
-
-            Vertex[][] faces = { // triangles
-                    {E, A, B}, {B, F, E},
-                    {D, H, F}, {F, B, D},
-                    {B, A, C}, {C, D, B},
-                    {A, E, G}, {G, C, A},
-                    {E, F, H}, {H, G, E},
-                    {C, G, H}, {H, D, C}
-            };
-
-            for (Vertex[] face : faces) {
-                triangles.add(new Triangle(face[0], face[1], face[2]));
-            }
-        }
-    }
-
-    public static class Cube extends Cuboid {
-        public Cube(double x, double y, double z, double scale, Color colour) {
-            super(x, y, z, 1,1,1, scale, colour);
-        }
-    }
-
-    public static class Plane extends Shape {
-        public Plane(double x, double y, double z, double width, double length, double scale, Color colour) {
-            super(x, y, z, scale, colour);
-
-            // z axis plane
-            Vertex A = new Vertex(1, 0, 1);
-            Vertex B = new Vertex(1, 0, -1);
-            Vertex C = new Vertex(-1, 0, 1);
-            Vertex D = new Vertex(-1, 0, -1);
-
-            vertices = new Vertex[] {A,B,C,D};
-
-            for (Vertex v : vertices) { // change to fill 1x1 space
-                v.x *= width/2;
-                v.z *= length/2;
-            }
-
-            Vertex[][] faces = { // triangles
-                    {C, A, B}, {B, D, C},
-            };
-
-            for (Vertex[] face : faces) {
-                triangles.add(new Triangle(face[0], face[1], face[2]));
-            }
-        }
-    }
-
-    public static class Pyramid extends Shape {
-        public Pyramid(double x, double y, double z, double scale, Color colour) {
-            super(x, y, z, scale, colour);
-
-            Vertex A = new Vertex(1, -1, 1);
-            Vertex B = new Vertex(1, -1, -1);
-            Vertex C = new Vertex(-1, -1, 1);
-            Vertex D = new Vertex(-1, -1, -1);
-
-            Vertex E = new Vertex(0, 1, 0);
-
-            vertices = new Vertex[]{A,B,C,D,E};
-
-            Vertex[][] faces = { // triangles
-                    {E, A, B}, {E, B, D},
-                    {E, D, C}, {E, C, A},
-                    {B, A, C}, {C, D, B},
-            };
-
-            for (Vertex[] face : faces) {
-                triangles.add(new Triangle(face[0], face[1], face[2]));
-            }
-        }
-    }
-    public static class Hexagonal_Prism extends Shape {
-        public Hexagonal_Prism(double x, double y, double z, double length, double scale, Color colour) {
-            super(x, y, z, scale, colour);
-
-            double r3 = Math.sqrt(3);
-            double l = length/2;
-
-            Vertex A = new Vertex(r3, l, 1);
-            Vertex B = new Vertex(r3, l, -1);
-            Vertex C = new Vertex(-r3, l, 1);
-            Vertex D = new Vertex(-r3, l, -1);
-            Vertex E = new Vertex(0,l,2);
-            Vertex F = new Vertex(0,l,-2);
-
-            Vertex G = new Vertex(r3, -l, 1);
-            Vertex H = new Vertex(r3, -l, -1);
-            Vertex I = new Vertex(-r3, -l, 1);
-            Vertex J = new Vertex(-r3, -l, -1);
-            Vertex K = new Vertex(0,-l,2);
-            Vertex L = new Vertex(0,-l,-2);
-
-            vertices = new Vertex[]{A,B,C,D,E,F,G,H,I,J,K,L};
-
-            for (Vertex v : vertices) { // change to fill 1x1 space
-                v.x /= 2;
-                v.y /= 2;
-                v.z /= 2;
-            }
-
-            Vertex[][] faces = { // triangles
-                    {A, E, K}, {K, G, A},
-                    {B, A, G}, {G, H, B},
-                    {F, B, H}, {H, L, F},
-                    {D, F, L}, {L, J, D},
-                    {C, D, J}, {J, I, C},
-                    {E, C, I}, {I, K, E},
-                    //Sides
-                    {F, D, C}, {F, C, E},
-                    {F, E, A}, {F, A, B},
-
-                    {L, H, G}, {L, G, K},
-                    {L, K, I}, {L, I, J},
-            };
-
-            ///*
-            for (Vertex[] face : faces) { // debug
-                Vertex temp = face[0];
-                face[0] = face[2];
-                face[2] = temp;
-            }
-             //*/
-
-            for (Vertex[] face : faces) {
-                triangles.add(new Triangle(face[0], face[1], face[2]));
-            }
-        }
-    }
-
-    public static class Sphere extends Shape {
-        public Sphere(double x, double y, double z, double scale, int num_of_points, Color colour) {
-            super(x, y, z, scale); // temporarily empty
-
-            double[][] sphere = new double[num_of_points][3];
-
-            for (int i = 0; i < num_of_points; i++) {
-                double phi = Math.acos(2 * Math.random() - 1); // Latitude angle
-                double theta = 2 * Math.PI * Math.random(); // Longitude angle
-
-                // Convert spherical coordinates to Cartesian coordinates
-                double x_cor = Math.sin(phi) * Math.cos(theta);
-                double y_cor = Math.sin(phi) * Math.sin(theta);
-                double z_cor = Math.cos(phi);
-
-                // Store the Cartesian coordinates in the array
-                sphere[i][0] = x_cor;
-                sphere[i][1] = y_cor;
-                sphere[i][2] = z_cor;
-            }
-
-            init(sphere, x,y,z,scale,colour);
-        }
-    }
-
     public static void main(String[] args) {
         //Light above
         DirectLight light = new DirectLight(1,-3,-2, Color.WHITE);
@@ -244,7 +26,7 @@ public class Main {
         hex_prism.setRotation(90, 0, 0);
 
         // Icosahedron
-        Icosahedron icosahedron = new Icosahedron(2.1, 1.2, 17, 1, Color.pink);
+        Icosahedron icosahedron = new Icosahedron(2.1, 1.3, 17, 1, Color.pink);
         icosahedron.setRotation(0, 0, 0);
 
         // Plane
@@ -253,25 +35,31 @@ public class Main {
         // Camera position
         Shape camera = new Shape(0,0,0,1);
 
+        // Upside-down pyramid
+        Pyramid pyramid = new Pyramid(-3, 0.1, 17.5, 0.6, Color.BLUE);
+        pyramid.setRotation(0,0,0);
+
+
         Shape[] unsortedObjs = {
                 icosahedron,
                 cuboid,
                 cube1,
                 plane,
                 //hex_prism,
-                new Pyramid(2.5, 0, 15, 1, Color.GREEN),
-                new Pyramid(-3, 0, 17.5, 0.6, Color.BLUE),
+                new Pyramid(2.7, 0, 15, 1, Color.GREEN),
+                pyramid,
                 new Cube(-1.2, 3, 18.1, 0.7, Color.MAGENTA)
         };
 
         //create renderer Object
-        Renderer RenderJRE = new Renderer(1000, 75,  1000, 1000);
+        Rendering.Renderer RenderJRE = new Renderer(1000, 75,  1000, 1000);
         JFrame fr = new JFrame();
         fr.setBounds(10, 10, RenderJRE.WindowResX, RenderJRE.WindowResY);
         fr.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         String a = "-diffuse";
         JPanel pn = RenderJRE.renderPanel(a, unsortedObjs, camera, light);
+        //JREWindow Window = new JREWindow(60);
 
         fr.setBackground(Color.BLACK);
         fr.add(pn);
