@@ -42,4 +42,13 @@ public class Level {
             e.printStackTrace();
         }
     }
+
+    // Accessors and Mutators
+    public ArrayList<Shape> getSceneObjects() {
+        return sceneObjects;
+    }
+
+    public void setSceneObjects(ArrayList<Shape> sceneObjects) {
+        this.sceneObjects = sceneObjects;
+    }
 }

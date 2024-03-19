@@ -25,4 +25,8 @@ public class DepthBuffer {
 
         buffer[y][x].overwriteIfCloser(p);
     }
+
+    public Pixel[][] getBuffer() {
+        return buffer;
+    }
 }

@@ -9,6 +9,7 @@ import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
+        /*
         //Light above
         DirectLight light = new DirectLight(1,-3,-2, Color.WHITE);
 
@@ -39,6 +40,7 @@ public class Main {
         pyramid.setRotation(0,0,0);
 
 
+
         Shape[] unsortedObjs = {
                 icosahedron,
                 cuboid,
@@ -49,24 +51,20 @@ public class Main {
                 pyramid,
                 new Cube(-1.2, 3, 18.1, 0.7, Color.MAGENTA)
         };
-
-        /*
+         */
 
         //create renderer Object
-        Rendering.Renderer RenderJRE = new Renderer(1000, 75,  1000, 1000);
+        Renderer renderer = new Renderer(1000, 75,  1000, 1000);
+        renderer.setArguments(new String[]{"diffuse", "wireframe"});
+        JREWindow Window = new JREWindow(60, renderer);
+
         JFrame fr = new JFrame();
         fr.setBounds(10, 10, RenderJRE.WindowResX, RenderJRE.WindowResY);
         fr.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        String a = "-diffuse";
-        JPanel pn = RenderJRE.renderPanel(a, unsortedObjs, camera, light);
-        //JREWindow Window = new JREWindow(60);
-
         fr.setBackground(Color.BLACK);
         fr.add(pn);
         fr.setVisible(true);
-
-         */
 
         Levels.Level w = new Level("src/Levels/level1.json");
     }

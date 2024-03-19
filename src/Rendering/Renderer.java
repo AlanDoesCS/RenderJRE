@@ -10,16 +10,17 @@ import Scene.lighting.DirectLight;
 import Scene.objects.Shape;
 import rMath.*;
 import Scene.objects.dependencies.*;
+import Tools.output;
+import Tools.math;
 
 public class Renderer {
     final double degToRad = Math.PI / 180; // ratio of degrees to radians
-    public static double clamp (double min, double value, double max) {
-        return Math.max(min, Math.min(max, value));
-    }
 
     public int zoom;
     public double FOV, AspectRatio, ZFar = 1000, ZNear = 0.1;
     public int WindowResX, WindowResY;
+    private String[] arguments = {};
+    private DepthBuffer zBuffer;
     public Renderer(int zoom, double FOV, int WindowResX, int WindowResY)
     {
         this.zoom = zoom;
@@ -27,6 +28,7 @@ public class Renderer {
         this.WindowResX = WindowResX;
         this.WindowResY = WindowResY;
         this.AspectRatio = (double) WindowResY / WindowResX;
+        this.zBuffer = new DepthBuffer(WindowResX, WindowResY);
     }
 
     public Vertex2D project3Dto2D(Vertex vertex, Vertex origin, double objScale) {
@@ -134,7 +136,7 @@ public class Renderer {
             sorted = binSort(unsorted, camera);
         } else {
             // Merge sort
-            System.out.println("Merge sort feature not added yet for large shape quantity");
+            output.warnMessage("Merge sort feature not added yet for large shape quantity");
             return unsorted;
         }
         return sorted;
@@ -223,9 +225,9 @@ public class Renderer {
 
         double diffuseStrength = Math.abs(Math.min(0, light.direction.dot(normal)));
 
-        colorVect.i = clamp(0,diffuseStrength * base.getRed(), 255);
-        colorVect.j = clamp(0,diffuseStrength * base.getGreen(), 255);
-        colorVect.k = clamp(0,diffuseStrength * base.getBlue(), 255);
+        colorVect.i = math.clamp(0,diffuseStrength * base.getRed(), 255);
+        colorVect.j = math.clamp(0,diffuseStrength * base.getGreen(), 255);
+        colorVect.k = math.clamp(0,diffuseStrength * base.getBlue(), 255);
 
         return new Color((int) colorVect.i, (int) colorVect.j, (int) colorVect.k);
     }
@@ -311,5 +313,13 @@ public class Renderer {
         };
 
         return panel;
+    }
+
+    // Accessors and Mutators
+    public void setArguments(String[] arguments) {
+        this.arguments = arguments;
+    }
+    public void setArguments(String arguments) {
+        this.arguments = arguments.split(" ");
     }
 }
