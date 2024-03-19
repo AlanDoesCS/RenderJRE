@@ -22,6 +22,6 @@ public class Main {
         fr.add(Window);
         fr.setVisible(true);
 
-        Levels.Level w = new Level("src/Levels/level1.json");
+        Levels.Level w = new Level("src/Levels/scene.json");
     }
 }
