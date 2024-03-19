@@ -1,20 +1,16 @@
 package Rendering;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 
-import Levels.Level;
-import Levels.LevelHandler;
+import Levels.*;
+import Scene.Camera;
 import Scene.lighting.DirectLight;
 import Scene.objects.Shape;
 import rMath.*;
 import Scene.objects.dependencies.*;
-import Tools.output;
 import Tools.math;
-import Tools.sort_and_search;
 
 public class Renderer {
     final double degToRad = Math.PI / 180; // ratio of degrees to radians
@@ -22,7 +18,7 @@ public class Renderer {
     public int zoom;
     public double FOV, AspectRatio, ZFar = 1000, ZNear = 0.1;
     public int WindowResX, WindowResY;
-    private String[] arguments = {};
+    private ArrayList<String> arguments = new ArrayList<>();
     private LevelHandler levelHandler;
     private DepthBuffer zBuffer;
     public Renderer(int zoom, double FOV, int WindowResX, int WindowResY)
@@ -53,73 +49,25 @@ public class Renderer {
         return projected;
     }
 
-    public Vertex2D[][] render_triangles(Triangle[] triangles, Shape parent) {
+    public Vertex2D[][] render_triangle_vertices(ArrayList<Triangle> triangles, Shape parent) {
         // Get length of rendered vertex array
-        int tri_list_length = triangles.length;
+        int tri_list_length = triangles.size();
 
         // [Triangle][rMath.Vertex]
         Vertex2D[][] triangle_array = new Vertex2D[tri_list_length][3]; // convert x,y,z into x,y
 
         // Project vertices onto 2D plane
-        for (int triangle=0; triangle<tri_list_length; triangle++) {
-            Triangle tri = triangles[triangle];
-
+        int triangle = 0;
+        for (Triangle tri : triangles) {
             int i=0;
             for (Vertex vertex : tri.points) {
                 triangle_array[triangle][i] = project3Dto2D(vertex, parent.getOrigin(), parent.getScale());
                 i++;
             }
+            triangle++;
         }
 
         return triangle_array;
-    }
-
-    public static Shape[] order_shapes(Shape[] unsorted, Shape camera) {
-        // perform most efficient sorting algorithm depending on size of array
-        Shape[] sorted;
-
-        if (unsorted.length < 55) {
-            // Binary sort
-            sorted = sort_and_search.binSort(unsorted, camera);
-        } else {
-            // Merge sort
-            output.warnMessage("Merge sort feature not added yet for large shape quantity");
-            return sort_and_search.binSort(unsorted, camera);
-        }
-        return sorted;
-    }
-
-    // --------------------------- Tris -----------------------------
-    public Triangle[] order_triangles(ArrayList<Triangle> list, Shape object, Shape camera) {
-        // remove triangles with z component normals facing away
-        Vector3D normal_test = new Vector3D();
-
-        Iterator<Triangle> itr = list.iterator();
-        while (itr.hasNext()) {
-            Triangle t = itr.next();
-            normal_test = normal_test.normal(t);
-            if (normal_test.k > 0) {
-                itr.remove();
-            }
-        }
-
-        // Convert ArrayList to array
-        Triangle[] unsorted = new Triangle[list.size()];
-        for (int i=0; i<list.size(); i++) {
-            unsorted[i] = list.get(i);
-        }
-
-        // perform most efficient sorting algorithm depending on size of array
-        Triangle[] sorted;
-        if (unsorted.length < 55) {
-            // Binary sort
-            sorted = sort_and_search.binSort(unsorted, object, camera);
-        } else {
-            // Merge sort
-            output.warnMessage("Merge sort feature not added yet for large triangle quantity");
-            sorted = sort_and_search.binSort(unsorted, object, camera);
-        }
-        return sorted;
     }
 
     public Color diffuseBasic(Color base, DirectLight light, Triangle object) { // base == shape color
@@ -139,83 +87,137 @@ public class Renderer {
         return new Color((int) colorVect.i, (int) colorVect.j, (int) colorVect.k);
     }
 
+    /*
+                     A
+                     /\
+                    /    \
+                  B/___     \
+                        ----___\C
+    */
+    public ArrayList<Pixel> outlineTriangle(Vertex2D[] triangle, Color outlineColor) {
+        ArrayList<Pixel> pixels = new ArrayList<>(3);
+
+        Vertex2D A = triangle[0];
+        Vertex2D B = triangle[1];
+        Vertex2D C = triangle[2];
+
+        // displacement vectors: dx, dy, dz
+        Vector3D deltaAB = Vector3D.displacement(A, B);
+        int dx, dy = (int) (deltaAB.j / deltaAB.i), dz = (int) (deltaAB.k/deltaAB.i);
+        if (A.x<B.x) {
+            dx = 1;
+        } else {
+            dx = -1;
+        }
+
+        // starting values
+        int cx = (int) A.x, cy = (int) A.y, cz = (int) A.z;
+        pixels.add(new Pixel(new Vector3D(cx, cy, cz), outlineColor));
+
+        while (cx != B.x) {
+            cx+=dx;
+            cy+=dy;
+            cz+=dz;
+            pixels.add(new Pixel(new Vector3D(cx, cy, cz), outlineColor));
+        }
+
+        // displacement vectors: dx, dy, dz
+        Vector3D deltaAC = Vector3D.displacement(A, C);
+        dy = (int) (deltaAC.j / deltaAC.i); dz = (int) (deltaAC.k/deltaAC.i);
+        if (A.x<C.x) {
+            dx = 1;
+        } else {
+            dx = -1;
+        }
+
+        // starting values
+        cx = (int) A.x; cy = (int) A.y; cz = (int) A.z;
+        pixels.add(new Pixel(new Vector3D(cx, cy, cz), outlineColor));
+
+        while (cx != C.x) {
+            cx+=dx;
+            cy+=dy;
+            cz+=dz;
+            pixels.add(new Pixel(new Vector3D(cx, cy, cz), outlineColor));
+        }
+
+        // displacement vectors: dx, dy, dz
+        Vector3D deltaBC = Vector3D.displacement(B, C);
+        dy = (int) (deltaBC.j / deltaBC.i); dz = (int) (deltaBC.k/deltaBC.i);
+        if (B.x<C.x) {
+            dx = 1;
+        } else {
+            dx = -1;
+        }
+
+        // starting values
+        cx = (int) B.x; cy = (int) B.y; cz = (int) B.z;
+        pixels.add(new Pixel(new Vector3D(cx, cy, cz), outlineColor));
+
+        while (cx != C.x) {
+            cx+=dx;
+            cy+=dy;
+            cz+=dz;
+            pixels.add(new Pixel(new Vector3D(cx, cy, cz), outlineColor));
+        }
+
+        return pixels;
+    }
+    public ArrayList<Pixel> scanlineTriangle(Vertex2D[] triangle) {
+        ArrayList<Pixel> pixels = new ArrayList<>(3);
+
+        Vertex2D A = triangle[0];
+        Vertex2D B = triangle[1];
+        Vertex2D C = triangle[2];
+
+
+        return pixels;
+    }
+
     // Argument Handling: ------------------------------------------
-    public void renderScene(String arguments, Shape[] unsortedObjs, Shape camera, DirectLight light) {
-        // format arguments
-        String[] args = arguments.replace(" ", "").toLowerCase().split("-");
+    public void renderScene() {
+        Camera camera = new Camera(0., 0., 0.);
+        zBuffer = new DepthBuffer(WindowResX, WindowResY);
 
-        // Fancy way of checking for the presence of an argument
-        boolean cel = Arrays.asList(args).contains("cel");
-        boolean wireframe = Arrays.asList(args).contains("wire");
-        boolean diffuse = Arrays.asList(args).contains("diffuse");
-        boolean fill = Arrays.asList(args).contains("fill");
+        boolean cel = arguments.contains("cel");
+        boolean wireframe = arguments.contains("wire");
+        boolean diffuse = arguments.contains("diffuse");
+        boolean fill = arguments.contains("fill");
 
-        // Perform most efficient sorting algorithm based on input size
-        Shape[] orderedObjs = order_shapes(unsortedObjs, camera);
+        ArrayList<Shape> sceneObjects = levelHandler.getLevelObjects();
+        ArrayList<ArrayList<Rendering.Pixel>> pixels2D = new ArrayList<>();
+        ArrayList<Rendering.Pixel> pixels = new ArrayList<>();
 
-        for (int shape_index = orderedObjs.length - 1; shape_index >= 0; shape_index--) {
-            Shape shape = orderedObjs[shape_index];
+        for (Shape shape : sceneObjects) {
+            if (shape.isVisible()) {
+                // Perform most efficient sorting algorithm based on input size
+                ArrayList<Triangle> triangles = shape.getTriangles();
 
-            // Perform most efficient sorting algorithm based on input size
-            Triangle[] orderedTriangles = order_triangles(shape.getTriangles(), shape, camera);
+                Vertex2D[][] Triangle_Points = render_triangle_vertices(triangles, shape);
 
-            Vertex2D[][] Triangle_Points = render_triangles(orderedTriangles, shape);
-
-            // draw shapes
-
-            // cell shader outline
-            if (cel) {
-                g2.setColor(shape.getColour().darker());
-                g2.setStroke(new BasicStroke(10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-
-                for (int tri_index = orderedTriangles.length - 1; tri_index >= 0; tri_index--) {
-                    Vertex2D[] triangle = Triangle_Points[tri_index];
-                    int[] xpoints = {(int) triangle[0].x, (int) triangle[1].x, (int) triangle[2].x};
-                    int[] ypoints = {(int) (WindowResY - triangle[0].y), (int) (WindowResY - triangle[1].y), (int) (WindowResY - triangle[2].y)};
-
-                    Polygon p = new Polygon(xpoints, ypoints, 3);  // This polygon represents a triangle with the above
-
-                    g2.setColor(shape.getColour().darker());
-                    g2.drawPolygon(p);
-                }
-            }
-
-            for (int tri_index = orderedTriangles.length - 1; tri_index >= 0; tri_index--) {
-                g2.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-
-                if (diffuse) {
-                    Color lit = diffuseBasic(shape.getColour(), light, orderedTriangles[tri_index]);
-                    g2.setColor(lit);
-                } else if (fill) { // diffuse takes priority over fill
-                    g2.setColor(shape.getColour());
-                }
-
-                Vertex2D[] triangle = Triangle_Points[tri_index];
-                int[] xpoints = {(int) triangle[0].x, (int) triangle[1].x, (int) triangle[2].x};
-                int[] ypoints = {(int) (WindowResY - triangle[0].y), (int) (WindowResY - triangle[1].y), (int) (WindowResY - triangle[2].y)};
-
-                Polygon p = new Polygon(xpoints, ypoints, 3);  // This polygon represents a triangle with the above
-
-                // fill shape vertices.
-                if (fill || diffuse) {
-                    g2.fillPolygon(p);
-                }
-
-                // draw wireframe
+                // cell shader outline
                 if (wireframe) {
-                    g2.setColor(shape.getColour().darker());
-                    g2.drawPolygon(p);
+                    Color outlineColor = shape.getColour().darker();
+
+                    for (Vertex2D[] triangle : Triangle_Points) {
+                        pixels.addAll(outlineTriangle(triangle, outlineColor));
+                    }
                 }
             }
+        }
+
+        for (Pixel p : pixels) {
+            System.out.println("("+p.getX()+", "+p.getY()+", "+p.getZ()+")");
+            zBuffer.add(p);
         }
     }
 
     // Accessors and Mutators
-    public void setArguments(String[] arguments) {
+    public void setArguments(ArrayList<String> arguments) {
         this.arguments = arguments;
     }
     public void setArguments(String arguments) {
-        this.arguments = arguments.split(" ");
+        this.arguments = (ArrayList<String>) Arrays.asList(arguments.split(" "));;
     }
     public DepthBuffer getDepthBuffer() {
         return zBuffer;
@@ -236,5 +238,8 @@ public class Renderer {
     // Load level by parent Class
     public void loadLevel(Class<? extends Level> parentClass) {
         levelHandler.setCurrent(parentClass);
+    }
+    public void loadNextLevel() {
+        levelHandler.goToNext();
     }
 }

@@ -1,5 +1,7 @@
 package Levels;
 
+import Scene.objects.Shape;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -15,10 +17,21 @@ public class LevelHandler {
         levelIndicesByName.put(level.getName(), lastIndex);
         levelIndicesByClass.put(level.getClass(), lastIndex);
     }
+    public ArrayList<Shape> getLevelObjects() {
+        return levels.get(currentLevelIndex).getSceneObjects();
+    }
+
 
     // Accessors and mutators ------------------------------------------------------------------------------------------
     public void setCurrent(int index) {
         currentLevelIndex = index;
+    }
+    public void goToNext() {
+        currentLevelIndex++;
+
+        if (currentLevelIndex >+ levels.size()) {
+            currentLevelIndex = 0;
+        }
     }
     public void setCurrent(String name) {
         currentLevelIndex = levelIndicesByName.get(name);

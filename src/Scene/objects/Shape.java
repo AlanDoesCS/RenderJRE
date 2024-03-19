@@ -2,7 +2,9 @@ package Scene.objects;
 import Scene.objects.dependencies.*;
 
 import java.awt.Color;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import rMath.*;
 
@@ -37,7 +39,12 @@ public class Shape {
 
         if (colorObj instanceof String) {
             // Color stored as a string (e.g., "BLACK")
-            color = Color.getColor((String) colorObj);
+            try {
+                Field field = Class.forName("java.awt.Color").getField((String) colorObj);
+                color = (Color)field.get(null);
+            } catch (Exception e) {
+                color = null; // Not defined
+            }
         } else if (colorObj instanceof JSONArray colorArray) {
             // Color stored as an array (e.g., [255, 255, 255])
             int red = ((Long) colorArray.get(0)).intValue();

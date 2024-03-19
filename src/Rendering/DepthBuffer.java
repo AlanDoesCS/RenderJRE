@@ -2,7 +2,8 @@ package Rendering;
 
 import rMath.Vector3D;
 
-import java.awt.*;
+import java.awt.Color;
+import Rendering.*;
 
 public class DepthBuffer {
     private double extent = 1e5;
@@ -20,10 +21,7 @@ public class DepthBuffer {
     }
 
     public void add(Pixel p) {
-        int x = (int) p.getX();
-        int y = (int) p.getY();
-
-        buffer[y][x].overwriteIfCloser(p);
+        buffer[(int) p.getY()][(int) p.getX()].overwriteIfCloser(p);
     }
 
     public Pixel[][] toArray() {

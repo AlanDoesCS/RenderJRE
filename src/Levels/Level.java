@@ -53,11 +53,14 @@ public class Level {
     public void setSceneObjects(ArrayList<Shape> sceneObjects) {
         this.sceneObjects = sceneObjects;
     }
+    public void addSceneObject(Shape shape) {
+        sceneObjects.add(shape);
+    }
 
     public String getName() {
         return this.name;
     }
-    public String setName(String newName) {
+    public void setName(String newName) {
         this.name = newName;
     }
 }

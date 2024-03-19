@@ -12,6 +12,12 @@ public class math {
     public static int randInt(int min, int max) {
         return (int) ((Math.random() * (max - min)) + min);
     }
+    public static int min(int a, int b) {
+        return Math.min(a, b);
+    }
+    public static int max(int a, int b) {
+        return Math.max(a, b);
+    }
     public static double distance(Shape shape1, Shape shape2) {
         double dx = shape1.getOrigin().x - shape2.getOrigin().x;
         double dy = shape1.getOrigin().y - shape2.getOrigin().y;

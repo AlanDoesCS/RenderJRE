@@ -1,5 +1,6 @@
 package Rendering;
 
+import Levels.Level;
 import Scene.objects.Shape;
 import Scene.objects.dependencies.Triangle;
 import rMath.Vertex2D;
@@ -7,6 +8,7 @@ import rMath.Vertex2D;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 public class JREWindow extends JPanel implements ActionListener {
     private int WIDTH, HEIGHT;
@@ -29,6 +31,7 @@ public class JREWindow extends JPanel implements ActionListener {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 
+        renderer.renderScene();
         Pixel[][] rendererImage = renderer.getDepthBuffer().toArray();
         for (Pixel[] row : rendererImage) {
             for (Pixel pixel : row) {
@@ -42,11 +45,11 @@ public class JREWindow extends JPanel implements ActionListener {
         repaint();
     }
 
-    public void passArguments(String[] arguments) {
+    public void passArguments(ArrayList<String> arguments) {
         renderer.setArguments(arguments);
     }
     public void passArguments(String arguments) {
-        renderer.setArguments(arguments.split(" "));
+        renderer.setArguments(arguments);
     }
 
     public int getWIDTH() {
@@ -54,5 +57,11 @@ public class JREWindow extends JPanel implements ActionListener {
     }
     public int getHEIGHT() {
         return HEIGHT;
+    }
+    public void addLevel(Level level) {
+        renderer.addLevel(level);
+    }
+    public void loadLevel(int i) {
+        renderer.loadLevel(i);
     }
 }
