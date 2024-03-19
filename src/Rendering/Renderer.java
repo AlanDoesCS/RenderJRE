@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import Levels.Level;
+import Levels.LevelHandler;
 import Scene.lighting.DirectLight;
 import Scene.objects.Shape;
 import rMath.*;
@@ -21,6 +23,7 @@ public class Renderer {
     public double FOV, AspectRatio, ZFar = 1000, ZNear = 0.1;
     public int WindowResX, WindowResY;
     private String[] arguments = {};
+    private LevelHandler levelHandler;
     private DepthBuffer zBuffer;
     public Renderer(int zoom, double FOV, int WindowResX, int WindowResY)
     {
@@ -30,6 +33,7 @@ public class Renderer {
         this.WindowResY = WindowResY;
         this.AspectRatio = (double) WindowResY / WindowResX;
         this.zBuffer = new DepthBuffer(WindowResX, WindowResY);
+        this.levelHandler = new LevelHandler();
     }
 
     public Vertex2D project3Dto2D(Vertex vertex, Vertex origin, double objScale) {
@@ -215,5 +219,22 @@ public class Renderer {
     }
     public DepthBuffer getDepthBuffer() {
         return zBuffer;
+    }
+
+    // Level handling --------------------------------------------------------------------------------------------------
+    public void addLevel(Level level) {
+        levelHandler.addLevel(level);
+    }
+    // Load level by index
+    public void loadLevel(int index) {
+        levelHandler.setCurrent(index);
+    }
+    // Load level by name
+    public void loadLevel(String name) {
+        levelHandler.setCurrent(name);
+    }
+    // Load level by parent Class
+    public void loadLevel(Class<? extends Level> parentClass) {
+        levelHandler.setCurrent(parentClass);
     }
 }

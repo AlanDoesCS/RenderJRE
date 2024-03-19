@@ -14,9 +14,11 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 public class Level {
+    private String name;
     final List<String> specialObjectFormats = Arrays.asList("GLTF", "OBJ");
     ArrayList<Shape> sceneObjects = new ArrayList<>();
-    public Level(String path) {
+    public Level(String path, String name) {
+        this.name = name;
         JSONParser parser = new JSONParser();
 
         try (Reader reader = new FileReader(path)) {
@@ -50,5 +52,12 @@ public class Level {
 
     public void setSceneObjects(ArrayList<Shape> sceneObjects) {
         this.sceneObjects = sceneObjects;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+    public String setName(String newName) {
+        this.name = newName;
     }
 }
