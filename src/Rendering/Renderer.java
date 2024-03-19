@@ -12,6 +12,7 @@ import rMath.*;
 import Scene.objects.dependencies.*;
 import Tools.output;
 import Tools.math;
+import Tools.sort_and_search;
 
 public class Renderer {
     final double degToRad = Math.PI / 180; // ratio of degrees to radians
@@ -69,120 +70,22 @@ public class Renderer {
         return triangle_array;
     }
 
-    public static double distance(Shape shape1, Shape shape2) {
-        double dx = shape1.getOrigin().x - shape2.getOrigin().x;
-        double dy = shape1.getOrigin().y - shape2.getOrigin().y;
-        double dz = shape1.getOrigin().z - shape2.getOrigin().z;
-
-        return Math.sqrt(dx*dx + dy*dy + dz*dz); // return magnitude of displacement vector
-    }
-
-    public static double distance(Triangle triangle, Shape parent, Shape shape2) {
-        double s = parent.getScale();
-
-        double dx = parent.getOrigin().x + s*triangle.midpoint.x - shape2.getOrigin().x;
-        double dy = parent.getOrigin().y + s*triangle.midpoint.y - shape2.getOrigin().y;
-        double dz = parent.getOrigin().z + s*triangle.midpoint.z - shape2.getOrigin().z;
-
-        return Math.sqrt(dx*dx + dy*dy + dz*dz); // return magnitude of displacement vector
-    }
-
-    public static int binSearch(Shape[] array, int l, int r, Shape key, Shape reference_shape) { // find element just further away than given shape
-        double key_distance = distance(key, reference_shape);
-
-        while (l<=r) {
-            int mid = l + (r-l)/2;
-
-            if (array[mid] == key) {
-                return mid+1;
-            } else if (key_distance > distance(array[mid], reference_shape)) {
-                l = mid+1;
-            } else {
-                r = mid-1;
-            }
-        }
-
-        return l;
-    }
-    public static Shape[] binSort(Shape[] array, Shape camera) { // binary insertion sort
-        int i, loc, j;
-        Shape selected;
-        int n = array.length;
-
-        for (i = 1; i < n; i++) {
-            j = i - 1;
-            selected = array[i];
-
-            // find location where selected should be inserted
-            loc = binSearch(array, 0, j, selected, camera);
-
-            // Shift elements along
-            while (j >= loc) {
-                array[j + 1] = array[j];
-                j--;
-            }
-            array[j + 1] = selected;
-        }
-
-        return array;
-    }
-
     public static Shape[] order_shapes(Shape[] unsorted, Shape camera) {
         // perform most efficient sorting algorithm depending on size of array
         Shape[] sorted;
 
         if (unsorted.length < 55) {
             // Binary sort
-            sorted = binSort(unsorted, camera);
+            sorted = sort_and_search.binSort(unsorted, camera);
         } else {
             // Merge sort
             output.warnMessage("Merge sort feature not added yet for large shape quantity");
-            return unsorted;
+            return sort_and_search.binSort(unsorted, camera);
         }
         return sorted;
     }
 
     // --------------------------- Tris -----------------------------
-    public int binSearch(Triangle[] array, int l, int r, Triangle key, Shape object, Shape reference_shape) { // find element just further away than given reference shape
-        double key_distance = distance(key, object, reference_shape); // distance(key, object, reference_shape);
-
-        while (l<=r) {
-            int mid = l + (r-l)/2;
-
-            if (array[mid] == key) {
-                return mid+1;
-            } else if (key_distance > distance(array[mid], object, reference_shape)) {
-                l = mid+1;
-            } else {
-                r = mid-1;
-            }
-        }
-
-        return l;
-    }
-    public Triangle[] binSort(Triangle[] array, Shape object, Shape camera) { // binary insertion sort
-        int i, loc, j;
-        Triangle selected;
-        int n = array.length;
-
-        for (i = 1; i < n; i++) {
-            j = i - 1;
-            selected = array[i];
-
-            // find location where selected should be inserted
-            loc = binSearch(array, 0, j, selected, object, camera);
-
-            // Shift elements along
-            while (j >= loc) {
-                array[j + 1] = array[j];
-                j--;
-            }
-            array[j + 1] = selected;
-        }
-
-        return array;
-    }
-
     public Triangle[] order_triangles(ArrayList<Triangle> list, Shape object, Shape camera) {
         // remove triangles with z component normals facing away
         Vector3D normal_test = new Vector3D();
@@ -206,11 +109,11 @@ public class Renderer {
         Triangle[] sorted;
         if (unsorted.length < 55) {
             // Binary sort
-            sorted = binSort(unsorted, object, camera);
+            sorted = sort_and_search.binSort(unsorted, object, camera);
         } else {
             // Merge sort
-            System.out.println("Merge sort feature not added yet for large triangle quantity");
-            sorted = binSort(unsorted, object, camera);
+            output.warnMessage("Merge sort feature not added yet for large triangle quantity");
+            sorted = sort_and_search.binSort(unsorted, object, camera);
         }
         return sorted;
     }
@@ -233,7 +136,7 @@ public class Renderer {
     }
 
     // Argument Handling: ------------------------------------------
-    public JPanel renderPanel(String arguments, Shape[] unsortedObjs, Shape camera, DirectLight light) {
+    public void renderScene(String arguments, Shape[] unsortedObjs, Shape camera, DirectLight light) {
         // format arguments
         String[] args = arguments.replace(" ", "").toLowerCase().split("-");
 
@@ -243,76 +146,64 @@ public class Renderer {
         boolean diffuse = Arrays.asList(args).contains("diffuse");
         boolean fill = Arrays.asList(args).contains("fill");
 
-        // Create panel
-        JPanel panel = new JPanel() {
-            @Override
-            public void paint(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                //g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        // Perform most efficient sorting algorithm based on input size
+        Shape[] orderedObjs = order_shapes(unsortedObjs, camera);
 
-                // Perform most efficient sorting algorithm based on input size
-                Shape[] orderedObjs = order_shapes(unsortedObjs, camera);
+        for (int shape_index = orderedObjs.length - 1; shape_index >= 0; shape_index--) {
+            Shape shape = orderedObjs[shape_index];
 
-                for (int shape_index = orderedObjs.length - 1; shape_index >= 0; shape_index--) {
-                    Shape shape = orderedObjs[shape_index];
+            // Perform most efficient sorting algorithm based on input size
+            Triangle[] orderedTriangles = order_triangles(shape.getTriangles(), shape, camera);
 
-                    // Perform most efficient sorting algorithm based on input size
-                    Triangle[] orderedTriangles = order_triangles(shape.getTriangles(), shape, camera);
+            Vertex2D[][] Triangle_Points = render_triangles(orderedTriangles, shape);
 
-                    Vertex2D[][] Triangle_Points = render_triangles(orderedTriangles, shape);
+            // draw shapes
 
-                    // draw shapes
+            // cell shader outline
+            if (cel) {
+                g2.setColor(shape.getColour().darker());
+                g2.setStroke(new BasicStroke(10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
-                    // cell shader outline
-                    if (cel) {
-                        g2.setColor(shape.getColour().darker());
-                        g2.setStroke(new BasicStroke(10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                for (int tri_index = orderedTriangles.length - 1; tri_index >= 0; tri_index--) {
+                    Vertex2D[] triangle = Triangle_Points[tri_index];
+                    int[] xpoints = {(int) triangle[0].x, (int) triangle[1].x, (int) triangle[2].x};
+                    int[] ypoints = {(int) (WindowResY - triangle[0].y), (int) (WindowResY - triangle[1].y), (int) (WindowResY - triangle[2].y)};
 
-                        for (int tri_index = orderedTriangles.length - 1; tri_index >= 0; tri_index--) {
-                            Vertex2D[] triangle = Triangle_Points[tri_index];
-                            int[] xpoints = {(int) triangle[0].x, (int) triangle[1].x, (int) triangle[2].x};
-                            int[] ypoints = {(int) (WindowResY - triangle[0].y), (int) (WindowResY - triangle[1].y), (int) (WindowResY - triangle[2].y)};
+                    Polygon p = new Polygon(xpoints, ypoints, 3);  // This polygon represents a triangle with the above
 
-                            Polygon p = new Polygon(xpoints, ypoints, 3);  // This polygon represents a triangle with the above
-
-                            g2.setColor(shape.getColour().darker());
-                            g2.drawPolygon(p);
-                        }
-                    }
-
-                    for (int tri_index = orderedTriangles.length - 1; tri_index >= 0; tri_index--) {
-                        g2.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-
-                        if (diffuse) {
-                            Color lit = diffuseBasic(shape.getColour(), light, orderedTriangles[tri_index]);
-                            g2.setColor(lit);
-                        } else if (fill) { // diffuse takes priority over fill
-                            g2.setColor(shape.getColour());
-                        }
-
-                        Vertex2D[] triangle = Triangle_Points[tri_index];
-                        int[] xpoints = {(int) triangle[0].x, (int) triangle[1].x, (int) triangle[2].x};
-                        int[] ypoints = {(int) (WindowResY - triangle[0].y), (int) (WindowResY - triangle[1].y), (int) (WindowResY - triangle[2].y)};
-
-                        Polygon p = new Polygon(xpoints, ypoints, 3);  // This polygon represents a triangle with the above
-
-                        // fill shape vertices.
-                        if (fill || diffuse) {
-                            g2.fillPolygon(p);
-                        }
-
-                        // draw wireframe
-                        if (wireframe) {
-                            g2.setColor(shape.getColour().darker());
-                            g2.drawPolygon(p);
-                        }
-                    }
+                    g2.setColor(shape.getColour().darker());
+                    g2.drawPolygon(p);
                 }
             }
-        };
 
-        return panel;
+            for (int tri_index = orderedTriangles.length - 1; tri_index >= 0; tri_index--) {
+                g2.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+
+                if (diffuse) {
+                    Color lit = diffuseBasic(shape.getColour(), light, orderedTriangles[tri_index]);
+                    g2.setColor(lit);
+                } else if (fill) { // diffuse takes priority over fill
+                    g2.setColor(shape.getColour());
+                }
+
+                Vertex2D[] triangle = Triangle_Points[tri_index];
+                int[] xpoints = {(int) triangle[0].x, (int) triangle[1].x, (int) triangle[2].x};
+                int[] ypoints = {(int) (WindowResY - triangle[0].y), (int) (WindowResY - triangle[1].y), (int) (WindowResY - triangle[2].y)};
+
+                Polygon p = new Polygon(xpoints, ypoints, 3);  // This polygon represents a triangle with the above
+
+                // fill shape vertices.
+                if (fill || diffuse) {
+                    g2.fillPolygon(p);
+                }
+
+                // draw wireframe
+                if (wireframe) {
+                    g2.setColor(shape.getColour().darker());
+                    g2.drawPolygon(p);
+                }
+            }
+        }
     }
 
     // Accessors and Mutators
@@ -321,5 +212,8 @@ public class Renderer {
     }
     public void setArguments(String arguments) {
         this.arguments = arguments.split(" ");
+    }
+    public DepthBuffer getDepthBuffer() {
+        return zBuffer;
     }
 }
