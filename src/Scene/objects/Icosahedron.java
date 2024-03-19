@@ -2,12 +2,12 @@ package Scene.objects;
 import Scene.objects.dependencies.*;
 
 import java.awt.Color;
+
+import org.json.simple.JSONObject;
 import rMath.*;
 
 public class Icosahedron extends Shape {
-    public Icosahedron(double x, double y, double z, double scale, Color colour) {
-        super(x, y, z, scale, colour);
-
+    private void generateVertices(double width, double length, double height) {
         double phi = (1 + Math.sqrt(5)) / 2; // Golden ratio
 
         Vertex A = new Vertex(0, 1, phi);
@@ -49,5 +49,16 @@ public class Icosahedron extends Shape {
         for (Vertex[] face : faces) {
             triangles.add(new Triangle(face[0], face[1], face[2]));
         }
+    }
+    public Icosahedron(double x, double y, double z, double scale, Color colour) {
+        super(x, y, z, scale, colour);
+
+        generateVertices(1., 1., 1.);
+    }
+
+    public Icosahedron(double x, double y, double z, JSONObject size, Color color) {
+        super(x, y, z, (double) size.get("scale"), color);
+
+        generateVertices((double) size.get("width"), (double) size.get("length"), (double) size.get("height"));
     }
 }

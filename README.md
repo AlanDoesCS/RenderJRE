@@ -1,1 +1,3 @@
 # RenderJRE
+
+requires JSON.simple

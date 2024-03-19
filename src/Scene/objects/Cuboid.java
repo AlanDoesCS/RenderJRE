@@ -1,13 +1,12 @@
 package Scene.objects;
 import Scene.objects.dependencies.*;
 
+import org.json.simple.JSONObject;
 import rMath.*;
 import java.awt.Color;
 
 public class Cuboid extends Shape {
-    public Cuboid(double x, double y, double z, double width, double length, double height, double scale, Color colour) {
-        super(x, y, z, scale, colour);
-
+    private void generateVertices(double width, double length, double height) {
         Vertex A = new Vertex(1, 1, 1);
         Vertex B = new Vertex(1, 1, -1);
         Vertex C = new Vertex(1, -1, 1);
@@ -38,5 +37,16 @@ public class Cuboid extends Shape {
         for (Vertex[] face : faces) {
             triangles.add(new Triangle(face[0], face[1], face[2]));
         }
+    }
+    public Cuboid(double x, double y, double z, double width, double length, double height, double scale, Color colour) {
+        super(x, y, z, scale, colour);
+
+        generateVertices(width, length, height);
+    }
+
+    public Cuboid(double x, double y, double z, JSONObject size, Color color) {
+        super(x, y, z, (double) size.get("scale"), color);
+
+        generateVertices((double) size.get("width"), (double) size.get("length"), (double) size.get("height"));
     }
 }

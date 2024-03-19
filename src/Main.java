@@ -1,9 +1,8 @@
+import Levels.Level;
 import Rendering.JREWindow;
 import Rendering.Renderer;
 import Scene.lighting.DirectLight;
 import Scene.objects.*;
-
-import Scene.objects.Shape;
 
 import java.awt.Color;
 import javax.swing.*;
@@ -51,6 +50,8 @@ public class Main {
                 new Cube(-1.2, 3, 18.1, 0.7, Color.MAGENTA)
         };
 
+        /*
+
         //create renderer Object
         Rendering.Renderer RenderJRE = new Renderer(1000, 75,  1000, 1000);
         JFrame fr = new JFrame();
@@ -64,5 +65,9 @@ public class Main {
         fr.setBackground(Color.BLACK);
         fr.add(pn);
         fr.setVisible(true);
+
+         */
+
+        Levels.Level w = new Level("src/Levels/level1.json");
     }
 }

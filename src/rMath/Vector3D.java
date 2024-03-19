@@ -24,6 +24,13 @@ public class Vector3D {
     }
 
     public Vector3D() {}
+    public static Vector3D displacement(Vertex source, Vertex target) {
+        double dx = target.x - source.x;
+        double dy = target.y - source.y;
+        double dz = target.z - source.z;
+
+        return new Vector3D(dx, dy, dz);
+    }
 
     public double length() {
         return Math.sqrt(i*i + j*j + k*k);

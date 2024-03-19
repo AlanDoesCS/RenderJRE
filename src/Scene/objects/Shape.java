@@ -4,17 +4,70 @@ import Scene.objects.dependencies.*;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import rMath.Vertex;
+import rMath.*;
+
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 
 public class Shape {
-    final double degToRad = Math.PI / 180; // ratio of degrees to radians
+    final static double degToRad = Math.PI / 180; // ratio of degrees to radians
+    String id;
     Color colour;
     Vertex origin;
     Vertex[] vertices;
     ArrayList<Triangle> triangles = new ArrayList<>();
-    double scale;
+    double scale = 1;
+    boolean visibility = true;
 
-    //reduce repetition
+    // initialisation handlers
+    public static Shape of(JSONObject object) {
+        Shape shape;
+        JSONObject size = (JSONObject) object.get("size");
+        JSONArray coordinates = (JSONArray) object.get("coordinate");
+        JSONArray rotation = (JSONArray) object.get("rotation");
+        Object colorObj = object.get("color");
+
+        // coordinate handling
+        double x = (double) coordinates.get(0);
+        double y = (double) coordinates.get(1);
+        double z = (double) coordinates.get(2);
+
+        // color handling
+        Color color;
+
+        if (colorObj instanceof String) {
+            // Color stored as a string (e.g., "BLACK")
+            color = Color.getColor((String) colorObj);
+        } else if (colorObj instanceof JSONArray colorArray) {
+            // Color stored as an array (e.g., [255, 255, 255])
+            int red = ((Long) colorArray.get(0)).intValue();
+            int green = ((Long) colorArray.get(1)).intValue();
+            int blue = ((Long) colorArray.get(2)).intValue();
+            color = new Color(red, green, blue);
+        } else {
+            throw new IllegalArgumentException("Invalid color format");
+        }
+
+        shape = switch ((String) object.get("type")) {
+            case ("Cube") -> new Cube(x, y, z, size, color);
+            case ("Cuboid") -> new Cuboid(x, y, z, size, color);
+            case ("Hexagonal Prism") -> new Hexagonal_Prism(x, y, z, size, color);
+            case ("Icosahedron") -> new Icosahedron(x, y, z, size, color);
+            case ("Plane") -> new Plane(x, y, z, size, color);
+            case ("Pyramid") -> new Pyramid(x, y, z, size, color);
+
+            // TODO: implement GLTF and OBJ formats
+            case ("OBJ") -> new Cube(x, y, z, size, color);
+            case ("GLTF") -> new Cube(x, y, z, size, color);
+            default -> throw new IllegalArgumentException("Attempted to create illegal or unsupported object type");
+        };
+
+        shape.setId((String) object.get("id"));
+        shape.setVisibility((boolean) object.get("visible"));
+
+        return shape;
+    }
+
     void init(double[][] vertex_array, double x, double y, double z, double scale, Color colour) {
 
         this.scale = scale;
@@ -154,5 +207,20 @@ public class Shape {
 
     public double getScale() {
         return scale;
+    }
+
+    public boolean isVisible() {
+        return visibility;
+    }
+    public void setVisibility(boolean visibility) {
+        this.visibility = visibility;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }
