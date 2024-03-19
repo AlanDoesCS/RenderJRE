@@ -28,16 +28,12 @@ public class Level {
             for (JSONObject object : (Iterable<JSONObject>) Objects) {
                 if (specialObjectFormats.contains((String) object.get("type"))) {
                     // TODO: implement handling for imported mesh formats
-                    output.warnMessage("special object format not support implemented yet :(");
+                    output.warnMessage("Support for object format: \""+object.get("type")+"\" not yet implemented.");
                     sceneObjects.add(Shape.of(object));
 
                 } else {
                     sceneObjects.add(Shape.of(object));
                 }
-
-
-                System.out.println(object);
-                System.out.println(object.get("type"));
 
                 sceneObjects.add(Shape.of(object));
             }

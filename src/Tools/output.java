@@ -2,6 +2,8 @@ package Tools;
 
 public class output {
     public static void warnMessage(String content) {
+        content = "WARNING: "+content;
+
         int content_length = content.indexOf('\n');
         if (content_length == -1)
             content_length = content.length();
@@ -10,6 +12,6 @@ public class output {
         for (int i = 0; i < content_length; i++) {
             border.append("-");
         }
-        System.out.println(border+"\n"+content+"\n"+border);
+        System.out.println("\n"+border+"\n"+content+"\n"+border+"\n");
     }
 }
