@@ -94,72 +94,46 @@ public class Renderer {
                   B/___     \
                         ----___\C
     */
+    public ArrayList<Pixel> drawLine(Pixel a, Pixel b) {
+        ArrayList<Pixel> linePixels = new ArrayList<>();
+
+        // always start with left-most pixel
+        Pixel source = Tools.math.minX(a, b);
+        Pixel target = Tools.math.maxX(a, b);
+
+        double dx = target.getX() - source.getX();
+        double dy = target.getY() - source.getY();
+        double dz = target.getZ() - source.getZ();
+
+        int dR = target.getColor().getRed() - source.getColor().getRed();
+        int dG = target.getColor().getGreen() - source.getColor().getGreen();
+        int dB = target.getColor().getBlue() - source.getColor().getBlue();
+
+        while (source.getX() < target.getX()) {
+            source.addX(1);
+            source.addY(dy/dx);
+            source.addZ(dz/dx);
+
+            int cr = source.getColor().getRed() + dR;
+            int cg = source.getColor().getGreen() + dG;
+            int cb = source.getColor().getBlue() + dB;
+            source.setColor( new Color(cr, cg, cb));
+
+            linePixels.add(source);
+        }
+
+        return linePixels;
+    }
     public ArrayList<Pixel> outlineTriangle(Vertex2D[] triangle, Color outlineColor) {
         ArrayList<Pixel> pixels = new ArrayList<>(3);
 
-        Vertex2D A = triangle[0];
-        Vertex2D B = triangle[1];
-        Vertex2D C = triangle[2];
+        Pixel A = new Pixel(triangle[0], outlineColor);
+        Pixel B = new Pixel(triangle[1], outlineColor);
+        Pixel C = new Pixel(triangle[2], outlineColor);
 
-        // displacement vectors: dx, dy, dz
-        Vector3D deltaAB = Vector3D.displacement(A, B);
-        int dx, dy = (int) (deltaAB.j / deltaAB.i), dz = (int) (deltaAB.k/deltaAB.i);
-        if (A.x<B.x) {
-            dx = 1;
-        } else {
-            dx = -1;
-        }
-
-        // starting values
-        int cx = (int) A.x, cy = (int) A.y, cz = (int) A.z;
-        pixels.add(new Pixel(new Vector3D(cx, cy, cz), outlineColor));
-
-        while (cx != B.x) {
-            cx+=dx;
-            cy+=dy;
-            cz+=dz;
-            pixels.add(new Pixel(new Vector3D(cx, cy, cz), outlineColor));
-        }
-
-        // displacement vectors: dx, dy, dz
-        Vector3D deltaAC = Vector3D.displacement(A, C);
-        dy = (int) (deltaAC.j / deltaAC.i); dz = (int) (deltaAC.k/deltaAC.i);
-        if (A.x<C.x) {
-            dx = 1;
-        } else {
-            dx = -1;
-        }
-
-        // starting values
-        cx = (int) A.x; cy = (int) A.y; cz = (int) A.z;
-        pixels.add(new Pixel(new Vector3D(cx, cy, cz), outlineColor));
-
-        while (cx != C.x) {
-            cx+=dx;
-            cy+=dy;
-            cz+=dz;
-            pixels.add(new Pixel(new Vector3D(cx, cy, cz), outlineColor));
-        }
-
-        // displacement vectors: dx, dy, dz
-        Vector3D deltaBC = Vector3D.displacement(B, C);
-        dy = (int) (deltaBC.j / deltaBC.i); dz = (int) (deltaBC.k/deltaBC.i);
-        if (B.x<C.x) {
-            dx = 1;
-        } else {
-            dx = -1;
-        }
-
-        // starting values
-        cx = (int) B.x; cy = (int) B.y; cz = (int) B.z;
-        pixels.add(new Pixel(new Vector3D(cx, cy, cz), outlineColor));
-
-        while (cx != C.x) {
-            cx+=dx;
-            cy+=dy;
-            cz+=dz;
-            pixels.add(new Pixel(new Vector3D(cx, cy, cz), outlineColor));
-        }
+        pixels.addAll(drawLine(A, B));
+        pixels.addAll(drawLine(A, C));
+        pixels.addAll(drawLine(B, C));
 
         return pixels;
     }
@@ -185,8 +159,6 @@ public class Renderer {
         boolean fill = arguments.contains("fill");
 
         ArrayList<Shape> sceneObjects = levelHandler.getLevelObjects();
-        ArrayList<ArrayList<Rendering.Pixel>> pixels2D = new ArrayList<>();
-        ArrayList<Rendering.Pixel> pixels = new ArrayList<>();
 
         for (Shape shape : sceneObjects) {
             if (shape.isVisible()) {
@@ -200,15 +172,15 @@ public class Renderer {
                     Color outlineColor = shape.getColour().darker();
 
                     for (Vertex2D[] triangle : Triangle_Points) {
-                        pixels.addAll(outlineTriangle(triangle, outlineColor));
+                        ArrayList<Pixel> pixels = outlineTriangle(triangle, outlineColor);
+                        for (Pixel p : pixels) {
+                            System.out.println("("+p.getX()+", "+p.getY()+", "+p.getZ()+")");
+                            zBuffer.add(p);
+                        }
+
                     }
                 }
             }
-        }
-
-        for (Pixel p : pixels) {
-            System.out.println("("+p.getX()+", "+p.getY()+", "+p.getZ()+")");
-            zBuffer.add(p);
         }
     }
 

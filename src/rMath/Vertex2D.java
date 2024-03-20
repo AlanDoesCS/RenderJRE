@@ -23,4 +23,7 @@ public class Vertex2D {
     public void addEdges(Vertex2D[] others) {
         Vertex2D[] tmp = new Vertex2D[edges.length + others.length];
     }
+    public String toString() {
+        return "("+x+", "+y+", "+z+")";
+    }
 }

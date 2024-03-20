@@ -63,7 +63,7 @@ public class Shape {
             case ("Plane") -> new Plane(x, y, z, size, color);
             case ("Pyramid") -> new Pyramid(x, y, z, size, color);
 
-            // TODO: implement GLTF and OBJ formats
+            //TODO: implement GLTF and OBJ formats
             case ("OBJ") -> new Cube(x, y, z, size, color);
             case ("GLTF") -> new Cube(x, y, z, size, color);
             default -> throw new IllegalArgumentException("Attempted to create illegal or unsupported object type");

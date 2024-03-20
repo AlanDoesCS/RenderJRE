@@ -1,5 +1,6 @@
 package Tools;
 
+import Rendering.Pixel;
 import Scene.objects.Shape;
 import Scene.objects.dependencies.Triangle;
 
@@ -33,5 +34,19 @@ public class math {
         double dz = parent.getOrigin().z + s*triangle.midpoint.z - shape2.getOrigin().z;
 
         return Math.sqrt(dx*dx + dy*dy + dz*dz); // return magnitude of displacement vector
+    }
+
+    public static Pixel minX(Pixel a, Pixel b) {
+        if (a.getX() <= b.getX()) {
+            return a;
+        }
+        return b;
+    }
+
+    public static Pixel maxX(Pixel a, Pixel b) {
+        if (a.getX() > b.getX()) {
+            return a;
+        }
+        return b;
     }
 }

@@ -4,14 +4,19 @@ import rMath.Vector3D;
 
 import java.awt.*;
 
-public class DirectLight {
-    public Color defaultColour = Color.WHITE, ambient;
+public class DirectLight extends Light {
+    public Color ambient;
     public Vector3D direction;
-    private void init(Color ambient, double dir_x, double dir_y, double dir_z) {
-        this.direction = new Vector3D(dir_x, dir_y, dir_z);
+
+    public DirectLight(double x, double y, double z, Vector3D direction, Color ambient) {
+        super(x, y, z, Color.white);
+        this.direction = direction;
         this.ambient = ambient;
     }
-    public DirectLight(double x, double y, double z, Color ambient) {
-        init(ambient, x, y, z);
+    public DirectLight(double x, double y, double z, Vector3D direction, Color ambient, Color color) {
+        super(x, y, z, Color.white);
+        this.direction = direction;
+        this.color = color;
+        this.ambient = ambient;
     }
 }

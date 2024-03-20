@@ -1,6 +1,10 @@
 package rMath;
 
 import Scene.objects.dependencies.*;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import java.awt.*;
 
 public class Vector3D {
     public double i, j, k;
@@ -24,6 +28,12 @@ public class Vector3D {
     }
 
     public Vector3D() {}
+
+    public Vector3D(JSONArray direction) {
+        this.i = (double) direction.get(0);
+        this.j = (double) direction.get(1);
+        this.k = (double) direction.get(2);
+    }
 
     public static Vector3D displacement(Vertex2D source, Vertex2D target) {
         double dx = target.x - source.x;
@@ -104,5 +114,8 @@ public class Vector3D {
 
     public double angle(Vector3D v, Vector3D w) { // returns angle between two vectors
         return Math.acos( dot(v, w) / (v.length() * w.length()));
+    }
+    public String toString() {
+        return "("+i+", "+j+", "+k+")";
     }
 }

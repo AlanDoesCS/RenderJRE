@@ -1,6 +1,7 @@
 package Rendering;
 
 import rMath.Vector3D;
+import rMath.Vertex2D;
 
 import java.awt.*;
 
@@ -12,6 +13,12 @@ public class Pixel {
         this.coordinate = coordinate;
         this.color = color;
     }
+
+    public Pixel(Vertex2D vertex2D, Color color) {
+        this.coordinate = new Vector3D(vertex2D.x, vertex2D.y, vertex2D.z);
+        this.color = color;
+    }
+
     public Color getColor() {
         return color;
     }
@@ -26,6 +33,15 @@ public class Pixel {
     }
     public double getZ() {
         return coordinate.k;
+    }
+    public void addX(double value) {
+        coordinate.i += value;
+    }
+    public void addY(double value) {
+        coordinate.j += value;
+    }
+    public void addZ(double value) {
+        coordinate.k += value;
     }
     public void setColor(Color color) {
         this.color = color;

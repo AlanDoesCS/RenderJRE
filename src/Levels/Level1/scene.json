@@ -123,7 +123,9 @@
     ],
     "Lighting": [
       {
-        "type": "diffuse",
+        "type": "DirectLight",
+        "visible": true,
+        "coordinate": [0.0, 0.0, 0.0],
         "direction": [1.0, -3.0, -2.0],
         "color": "WHITE"
       }

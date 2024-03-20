@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.*;
 
+import Scene.lighting.Light;
 import Scene.objects.Shape;
 import Tools.output;
 
@@ -17,6 +18,7 @@ public class Level {
     private String name;
     final List<String> specialObjectFormats = Arrays.asList("GLTF", "OBJ");
     ArrayList<Shape> sceneObjects = new ArrayList<>();
+    ArrayList<Light> sceneLights = new ArrayList<>();
     public Level(String path, String name) {
         this.name = name;
         JSONParser parser = new JSONParser();
@@ -25,19 +27,23 @@ public class Level {
             JSONObject jsonObject = (JSONObject) parser.parse(reader);
             JSONObject Scene = (JSONObject) jsonObject.get("Scene");
 
+            // World objects
             JSONArray Objects = (JSONArray) Scene.get("Objects");
 
             for (JSONObject object : (Iterable<JSONObject>) Objects) {
                 if (specialObjectFormats.contains((String) object.get("type"))) {
                     // TODO: implement handling for imported mesh formats
                     output.warnMessage("Support for object format: \""+object.get("type")+"\" not yet implemented.");
-                    sceneObjects.add(Shape.of(object));
-
-                } else {
-                    sceneObjects.add(Shape.of(object));
                 }
 
                 sceneObjects.add(Shape.of(object));
+            }
+
+            // Lighting
+            JSONArray Lighting = (JSONArray) Scene.get("Lighting");
+
+            for (JSONObject light : (Iterable<JSONObject>) Lighting) {
+                sceneLights.add(Light.of(light));
             }
 
         } catch (IOException | ParseException e) {
@@ -55,6 +61,17 @@ public class Level {
     }
     public void addSceneObject(Shape shape) {
         sceneObjects.add(shape);
+    }
+
+    public ArrayList<Light> getSceneLights() {
+        return sceneLights;
+    }
+
+    public void setSceneLights(ArrayList<Light> sceneLights) {
+        this.sceneLights = sceneLights;
+    }
+    public void addSceneLight(Light light) {
+        sceneLights.add(light);
     }
 
     public String getName() {
