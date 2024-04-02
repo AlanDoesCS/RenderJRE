@@ -19,28 +19,33 @@ public class Pixel {
         this.color = color;
     }
 
+    public Pixel(int x1, int y1, int z1) {
+        this.coordinate = new Vector3D(x1, y1, z1);
+        this.color = Color.white;
+    }
+
     public Color getColor() {
         return color;
     }
     public Vector3D getCoordinate() {
         return coordinate;
     }
-    public double getX() {
+    public float getX() {
         return coordinate.i;
     }
-    public double getY() {
+    public float getY() {
         return coordinate.j;
     }
-    public double getZ() {
+    public float getZ() {
         return coordinate.k;
     }
-    public void addX(double value) {
+    public void addX(float value) {
         coordinate.i += value;
     }
-    public void addY(double value) {
+    public void addY(float value) {
         coordinate.j += value;
     }
-    public void addZ(double value) {
+    public void addZ(float value) {
         coordinate.k += value;
     }
     public void setColor(Color color) {
@@ -54,5 +59,8 @@ public class Pixel {
             setCoordinate(pixel.coordinate);
             setColor(pixel.color);
         }
+    }
+    public String toString() {
+        return "Pixel: "+getCoordinate().toString();
     }
 }

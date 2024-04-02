@@ -9,7 +9,7 @@ import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
-        JREWindow Window = new JREWindow(60, 1000, 1000);
+        JREWindow Window = new JREWindow(10, 1000, 1000);
         Window.setBackground(Color.BLACK);
         Window.addLevel(new Level1());
         Window.loadLevel(0);

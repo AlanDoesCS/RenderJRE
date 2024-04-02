@@ -1,27 +1,27 @@
 package rMath;
 
 public class Vertex {
-    public double x, y, z;
+    public float x, y, z;
 
     public Vertex[] edges = {};
-    public Vertex(double x, double y, double z) {
+    public Vertex(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
-    public void set(double x, double y, double z) {
+    public void set(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
-    public void scaleAdd(double scale, Vector3D vector, Vertex start_vertex) {
+    public void scaleAdd(float scale, Vector3D vector, Vertex start_vertex) {
         this.x = start_vertex.x + scale * vector.i;
         this.y = start_vertex.y + scale * vector.j;
         this.z = start_vertex.z + scale * vector.k;
     }
 
-    public void scaleAdd(double scale, Vector3D vector) {
+    public void scaleAdd(float scale, Vector3D vector) {
         scaleAdd(scale, vector, this);
     }
 

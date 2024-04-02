@@ -6,7 +6,7 @@ import java.awt.Color;
 import Rendering.*;
 
 public class DepthBuffer {
-    private double extent = 1e5;
+    private final float extent = 1e5F;
     private Pixel[][] buffer;
 
     public DepthBuffer(int sizeX, int sizeY) {

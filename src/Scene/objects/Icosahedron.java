@@ -7,8 +7,8 @@ import org.json.simple.JSONObject;
 import rMath.*;
 
 public class Icosahedron extends Shape {
-    private void generateVertices(double width, double length, double height) {
-        double phi = (1 + Math.sqrt(5)) / 2; // Golden ratio
+    private void generateVertices(float width, float length, float height) {
+        float phi = 1.618034F; // Golden ratio
 
         Vertex A = new Vertex(0, 1, phi);
         Vertex B = new Vertex(0, -1, phi);
@@ -50,15 +50,15 @@ public class Icosahedron extends Shape {
             triangles.add(new Triangle(face[0], face[1], face[2]));
         }
     }
-    public Icosahedron(double x, double y, double z, double scale, Color colour) {
+    public Icosahedron(float x, float y, float z, float scale, Color colour) {
         super(x, y, z, scale, colour);
 
-        generateVertices(1., 1., 1.);
+        generateVertices(1f, 1f, 1f);
     }
 
-    public Icosahedron(double x, double y, double z, JSONObject size, Color color) {
-        super(x, y, z, (double) size.get("scale"), color);
+    public Icosahedron(float x, float y, float z, JSONObject size, Color color) {
+        super(x, y, z, (float) size.get("scale"), color);
 
-        generateVertices((double) size.get("width"), (double) size.get("length"), (double) size.get("height"));
+        generateVertices((float) size.get("width"), (float) size.get("length"), (float) size.get("height"));
     }
 }

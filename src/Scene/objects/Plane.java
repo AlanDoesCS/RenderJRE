@@ -7,7 +7,7 @@ import org.json.simple.JSONObject;
 import rMath.Vertex;
 
 public class Plane extends Shape {
-    private void generateVertices(double width, double length) {
+    private void generateVertices(float width, float length) {
         // z axis plane
         Vertex A = new Vertex(1, 0, 1);
         Vertex B = new Vertex(1, 0, -1);
@@ -29,15 +29,15 @@ public class Plane extends Shape {
             triangles.add(new Triangle(face[0], face[1], face[2]));
         }
     }
-    public Plane(double x, double y, double z, double width, double length, double scale, Color colour) {
+    public Plane(float x, float y, float z, float width, float length, float scale, Color colour) {
         super(x, y, z, scale, colour);
 
         generateVertices(width, length);
     }
 
-    public Plane(double x, double y, double z, JSONObject size, Color color) {
-        super(x, y, z, (double) size.get("scale"), color);
+    public Plane(float x, float y, float z, JSONObject size, Color color) {
+        super(x, y, z, (float) size.get("scale"), color);
 
-        generateVertices((double) size.get("width"), (double) size.get("length"));
+        generateVertices((float) size.get("width"), (float) size.get("length"));
     }
 }

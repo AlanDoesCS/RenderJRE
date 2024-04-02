@@ -6,7 +6,7 @@ import rMath.Vertex;
 import java.awt.Color;
 
 public class Pyramid extends Shape {
-    private void generateVertices(double width, double length, double height) {
+    private void generateVertices(float width, float length, float height) {
         Vertex A = new Vertex(1, -1, 1);
         Vertex B = new Vertex(1, -1, -1);
         Vertex C = new Vertex(-1, -1, 1);
@@ -32,15 +32,15 @@ public class Pyramid extends Shape {
             triangles.add(new Triangle(face[0], face[1], face[2]));
         }
     }
-    public Pyramid(double x, double y, double z, double scale, Color colour) {
+    public Pyramid(float x, float y, float z, float scale, Color colour) {
         super(x, y, z, scale, colour);
 
-        generateVertices(1., 1., 1.);
+        generateVertices(1f, 1f, 1f);
     }
 
-    public Pyramid(double x, double y, double z, JSONObject size, Color color) {
-        super(x, y, z, (double) size.get("scale"), color);
+    public Pyramid(float x, float y, float z, JSONObject size, Color color) {
+        super(x, y, z, (float) size.get("scale"), color);
 
-        generateVertices((double) size.get("width"), (double) size.get("length"), (double) size.get("height"));
+        generateVertices((float) size.get("width"), (float) size.get("length"), (float) size.get("height"));
     }
 }

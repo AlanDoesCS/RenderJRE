@@ -8,7 +8,7 @@ public class Triangle {
     private void init(Vertex[] array) {
         points = array;
         if (array.length > 1) {
-            double max_x=0, min_x=0, max_y=0, min_y=0, max_z=0, min_z=0;
+            float max_x=0, min_x=0, max_y=0, min_y=0, max_z=0, min_z=0;
             for (int dimension=1; dimension<=3; dimension++) {
                 if (dimension==1) {
                     max_x = array[0].x;
@@ -35,7 +35,7 @@ public class Triangle {
             }
             midpoint = new Vertex((max_x+min_x)/2, (max_y+min_y)/2, (max_z+min_z)/2);
 
-            double sum_x = 0, sum_y = 0, sum_z = 0;
+            float sum_x = 0, sum_y = 0, sum_z = 0;
             for (Vertex value : array) {
                 sum_x += value.x;
                 sum_y += value.y;

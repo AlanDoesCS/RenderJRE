@@ -12,13 +12,13 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
 public class Shape {
-    final static double degToRad = Math.PI / 180; // ratio of degrees to radians
+    final static float degToRad = (float) (Math.PI / 180); // ratio of degrees to radians
     String id;
     Color colour;
     Vertex origin;
     Vertex[] vertices;
     ArrayList<Triangle> triangles = new ArrayList<>();
-    double scale = 1;
+    float scale = 1;
     boolean visibility = true;
 
     // initialisation handlers
@@ -30,9 +30,9 @@ public class Shape {
         Object colorObj = object.get("color");
 
         // coordinate handling
-        double x = (double) coordinates.get(0);
-        double y = (double) coordinates.get(1);
-        double z = (double) coordinates.get(2);
+        float x = (float) coordinates.get(0);
+        float y = (float) coordinates.get(1);
+        float z = (float) coordinates.get(2);
 
         // color handling
         Color color;
@@ -75,7 +75,7 @@ public class Shape {
         return shape;
     }
 
-    void init(double[][] vertex_array, double x, double y, double z, double scale, Color colour) {
+    void init(float[][] vertex_array, float x, float y, float z, float scale, Color colour) {
 
         this.scale = scale;
         origin = new Vertex(x,y,z);
@@ -84,14 +84,14 @@ public class Shape {
         Vertex[] vertices_temp = new Vertex[vertex_array.length];
 
         int i=0;
-        for (double[] vert : vertex_array) {
+        for (float[] vert : vertex_array) {
             vertices_temp[i] = new Vertex(vert[0], vert[1], vert[2]);
             i++;
         }
         vertices = vertices_temp;
 
         int vert_len = vertices.length;
-        double[][][] unique_tris = new double[vert_len][vert_len][vert_len];
+        float[][][] unique_tris = new float[vert_len][vert_len][vert_len];
 
         if (vertices.length > 2) {
             for (int v1=0; v1<vertices.length; v1++) {
@@ -100,12 +100,12 @@ public class Shape {
                         if (v1!=v2 && v1!=v3 && v2!=v3 && unique_tris[v1][v2][v3] == 0.0) {
                             triangles.add(new Triangle(new Vertex[]{vertices[v1], vertices[v2], vertices[v3]}));
 
-                            unique_tris[v1][v2][v3] = 1.0;
-                            unique_tris[v1][v3][v2] = 1.0;
-                            unique_tris[v2][v1][v3] = 1.0;
-                            unique_tris[v2][v3][v1] = 1.0;
-                            unique_tris[v3][v1][v2] = 1.0;
-                            unique_tris[v3][v2][v1] = 1.0;
+                            unique_tris[v1][v2][v3] = 1f;
+                            unique_tris[v1][v3][v2] = 1f;
+                            unique_tris[v2][v1][v3] = 1f;
+                            unique_tris[v2][v3][v1] = 1f;
+                            unique_tris[v3][v1][v2] = 1f;
+                            unique_tris[v3][v2][v1] = 1f;
                         }
                     }
                 }
@@ -116,55 +116,55 @@ public class Shape {
         this.colour = colour;
     }
 
-    public Shape(double[][] vertex_array, double x, double y, double z, double scale, Color colour) { // given colour
+    public Shape(float[][] vertex_array, float x, float y, float z, float scale, Color colour) { // given colour
         init(vertex_array, x, y, z, scale, colour);
     }
 
-    public Shape(double[][] vertex_array, double x, double y, double z, double scale) { // default colour
+    public Shape(float[][] vertex_array, float x, float y, float z, float scale) { // default colour
         init(vertex_array, x, y, z, scale, Color.BLACK);
     }
-    public Shape(double x, double y, double z, double scale, Color colour) { // Empty vertices - Intended only for temporary purposes
-        init(new double[][]{}, x, y, z, scale, colour);
+    public Shape(float x, float y, float z, float scale, Color colour) { // Empty vertices - Intended only for temporary purposes
+        init(new float[][]{}, x, y, z, scale, colour);
     }
-    public Shape(double x, double y, double z, double scale) { // Empty vertices - Intended only for temporary purposes
-        init(new double[][]{}, x, y, z, scale, Color.BLACK);
+    public Shape(float x, float y, float z, float scale) { // Empty vertices - Intended only for temporary purposes
+        init(new float[][]{}, x, y, z, scale, Color.BLACK);
     }
 
-    public void setScale(double new_scale) {
+    public void setScale(float new_scale) {
         this.scale = new_scale;
     }
     // Shape rotation using rotation matrices
-    private void rotateX(double theta_x) {
+    private void rotateX(float theta_x) {
         for (Vertex vertex : vertices) {
-            double newY = (vertex.y * Math.cos(theta_x)) + (vertex.z * -Math.sin(theta_x));
-            double newZ = (vertex.y * Math.sin(theta_x)) + (vertex.z * Math.cos(theta_x));
+            float newY = (float) ((vertex.y * Math.cos(theta_x)) + (vertex.z * -Math.sin(theta_x)));
+            float newZ = (float) ((vertex.y * Math.sin(theta_x)) + (vertex.z * Math.cos(theta_x)));
 
             vertex.y = newY;
             vertex.z = newZ;
         }
     }
 
-    private void rotateY(double theta_y) {
+    private void rotateY(float theta_y) {
         for (Vertex vertex : vertices) {
-            double newX = (vertex.x * Math.cos(theta_y)) + (vertex.z * Math.sin(theta_y));
-            double newZ = (vertex.x * -Math.sin(theta_y)) + (vertex.z * Math.cos(theta_y));
+            float newX = (float) ((vertex.x * Math.cos(theta_y)) + (vertex.z * Math.sin(theta_y)));
+            float newZ = (float) ((vertex.x * -Math.sin(theta_y)) + (vertex.z * Math.cos(theta_y)));
 
             vertex.x = newX;
             vertex.z = newZ;
         }
     }
 
-    private void rotateZ(double theta_z) {
+    private void rotateZ(float theta_z) {
         for (Vertex vertex : vertices) {
-            double newX = (vertex.x * Math.cos(theta_z)) + (vertex.y * -Math.sin(theta_z));
-            double newY = (vertex.x * Math.sin(theta_z)) + (vertex.y * Math.cos(theta_z));
+            float newX = (float) ((vertex.x * Math.cos(theta_z)) + (vertex.y * -Math.sin(theta_z)));
+            float newY = (float) ((vertex.x * Math.sin(theta_z)) + (vertex.y * Math.cos(theta_z)));
 
             vertex.x = newX;
             vertex.y = newY;
         }
     }
 
-    public void setRotation(double theta_x, double theta_y, double theta_z) {
+    public void setRotation(float theta_x, float theta_y, float theta_z) {
         if (theta_x != 0) {
             rotateX(theta_x*degToRad);
         }
@@ -212,7 +212,7 @@ public class Shape {
         this.triangles = triangles;
     }
 
-    public double getScale() {
+    public float getScale() {
         return scale;
     }
 

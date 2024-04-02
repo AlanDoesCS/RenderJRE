@@ -18,7 +18,7 @@ public class JREWindow extends JPanel implements ActionListener {
         this.WIDTH = WIDTH;
         this.HEIGHT = HEIGHT;
         int delay = 1000/FPS;
-        this.renderer = new Renderer(1000, 75,  WIDTH, HEIGHT);;
+        this.renderer = new Renderer(1000, 75,  WIDTH, HEIGHT);
 
         timer = new Timer(delay, this);
     }
@@ -35,6 +35,7 @@ public class JREWindow extends JPanel implements ActionListener {
         Pixel[][] rendererImage = renderer.getDepthBuffer().toArray();
         for (Pixel[] row : rendererImage) {
             for (Pixel pixel : row) {
+                g2.setColor(pixel.getColor());
                 g2.drawRect((int) pixel.getX(), (int) pixel.getY(), 1, 1);
             }
         }

@@ -8,13 +8,13 @@ import java.awt.*;
 import java.lang.reflect.Field;
 
 public abstract class Light {
-    double x, y, z;
+    float x, y, z;
     String id = "idLess";
     boolean visibility = true;
     Color color = Color.WHITE;
 
     // initialisation handlers
-    public Light(double x, double y, double z, Color color) {
+    public Light(float x, float y, float z, Color color) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -27,9 +27,9 @@ public abstract class Light {
         Object colorObj = object.get("color");
 
         // coordinate handling
-        double x = (double) coordinates.get(0);
-        double y = (double) coordinates.get(1);
-        double z = (double) coordinates.get(2);
+        float x = (float) coordinates.get(0);
+        float y = (float) coordinates.get(1);
+        float z = (float) coordinates.get(2);
 
         // color handling
         Color color;

@@ -3,6 +3,7 @@ package Rendering;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import Levels.*;
 import Scene.Camera;
@@ -13,36 +14,36 @@ import Scene.objects.dependencies.*;
 import Tools.math;
 
 public class Renderer {
-    final double degToRad = Math.PI / 180; // ratio of degrees to radians
+    final float degToRad = Math.PI / 180; // ratio of degrees to radians
 
     public int zoom;
-    public double FOV, AspectRatio, ZFar = 1000, ZNear = 0.1;
+    public float FOV, AspectRatio, ZFar = 1000, ZNear = 0.1;
     public int WindowResX, WindowResY;
     private ArrayList<String> arguments = new ArrayList<>();
     private LevelHandler levelHandler;
     private DepthBuffer zBuffer;
-    public Renderer(int zoom, double FOV, int WindowResX, int WindowResY)
+    public Renderer(int zoom, float FOV, int WindowResX, int WindowResY)
     {
         this.zoom = zoom;
-        this.FOV = FOV*degToRad;
+        this.FOV = FOV * degToRad;
         this.WindowResX = WindowResX;
         this.WindowResY = WindowResY;
-        this.AspectRatio = (double) WindowResY / WindowResX;
+        this.AspectRatio = (float) WindowResY / WindowResX;
         this.zBuffer = new DepthBuffer(WindowResX, WindowResY);
         this.levelHandler = new LevelHandler();
     }
 
-    public Vertex2D project3Dto2D(Vertex vertex, Vertex origin, double objScale) {
-        double relative_x = origin.x + objScale * vertex.x;
-        double relative_y = origin.y + objScale * vertex.y;
-        double relative_z = origin.z + objScale * vertex.z;
+    public Vertex2D project3Dto2D(Vertex vertex, Vertex origin, float objScale) {
+        float relative_x = origin.x + objScale * vertex.x;
+        float relative_y = origin.y + objScale * vertex.y;
+        float relative_z = origin.z + objScale * vertex.z;
 
         Vertex2D projected = new Vertex2D();
 
-        double fl = 1/Math.tan(FOV/2);
-        double ZNormal = ZFar / (ZFar - ZNear);
-        projected.x = (double) WindowResX/2 + zoom * (AspectRatio*fl*relative_x)/relative_z;
-        projected.y = (double) WindowResY/2 + (zoom * (fl * relative_y) / relative_z);
+        float fl = 1/Math.tan(FOV/2);
+        float ZNormal = ZFar / (ZFar - ZNear);
+        projected.x = (float) WindowResX/2 + zoom * (AspectRatio*fl*relative_x)/relative_z;
+        projected.y = (float) WindowResY/2 + (zoom * (fl * relative_y) / relative_z);
 
         projected.z = relative_z * ZNormal - ZNear * ZNormal;
 
@@ -78,7 +79,7 @@ public class Renderer {
         normal = normal.normal(object);
         normal.normalise(); // normalise length of the vector
 
-        double diffuseStrength = Math.abs(Math.min(0, light.direction.dot(normal)));
+        float diffuseStrength = Math.abs(Math.min(0, light.direction.dot(normal)));
 
         colorVect.i = math.clamp(0,diffuseStrength * base.getRed(), 255);
         colorVect.j = math.clamp(0,diffuseStrength * base.getGreen(), 255);
@@ -94,6 +95,7 @@ public class Renderer {
                   B/___     \
                         ----___\C
     */
+
     public ArrayList<Pixel> drawLine(Pixel a, Pixel b) {
         ArrayList<Pixel> linePixels = new ArrayList<>();
 
@@ -101,25 +103,39 @@ public class Renderer {
         Pixel source = Tools.math.minX(a, b);
         Pixel target = Tools.math.maxX(a, b);
 
-        double dx = target.getX() - source.getX();
-        double dy = target.getY() - source.getY();
-        double dz = target.getZ() - source.getZ();
+        float dx = target.getX() - source.getX();
+        float dy = target.getY() - source.getY();
+        float dz = target.getZ() - source.getZ();
 
         int dR = target.getColor().getRed() - source.getColor().getRed();
         int dG = target.getColor().getGreen() - source.getColor().getGreen();
         int dB = target.getColor().getBlue() - source.getColor().getBlue();
 
+        int q = 1;
+
+        System.out.println("\n\nADDING NEW LINE: "+source+"->"+target);
         while (source.getX() < target.getX()) {
             source.addX(1);
             source.addY(dy/dx);
             source.addZ(dz/dx);
 
-            int cr = source.getColor().getRed() + dR;
-            int cg = source.getColor().getGreen() + dG;
-            int cb = source.getColor().getBlue() + dB;
-            source.setColor( new Color(cr, cg, cb));
+            System.out.println("source: "+source);
 
-            linePixels.add(source);
+            float cr = source.getColor().getRed() + dR/dx*q;
+            float cg = source.getColor().getGreen() + dG/dx*q;
+            float cb = source.getColor().getBlue() + dB/dx*q;
+            source.setColor( new Color(
+                    math.min(math.max((int) cr, 0), 255),
+                    math.min(math.max((int) cg, 0), 255),
+                    math.min(math.max((int) cb, 0), 255)
+                    )
+            );
+
+            Pixel copy = source;
+
+            linePixels.add(copy);
+
+            q++;
         }
 
         return linePixels;
@@ -173,8 +189,8 @@ public class Renderer {
 
                     for (Vertex2D[] triangle : Triangle_Points) {
                         ArrayList<Pixel> pixels = outlineTriangle(triangle, outlineColor);
+
                         for (Pixel p : pixels) {
-                            System.out.println("("+p.getX()+", "+p.getY()+", "+p.getZ()+")");
                             zBuffer.add(p);
                         }
 

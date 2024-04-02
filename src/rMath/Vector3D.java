@@ -1,21 +1,22 @@
 package rMath;
 
 import Scene.objects.dependencies.*;
+import Tools.math;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.awt.*;
 
 public class Vector3D {
-    public double i, j, k;
+    public float i, j, k;
 
-    public Vector3D(double i, double j, double k) {
+    public Vector3D(float i, float j, float k) {
         this.i = i;
         this.j = j;
         this.k = k;
     }
 
-    public Vector3D(double[] array) {
+    public Vector3D(float[] array) {
         this.i = array[0];
         this.j = array[1];
         this.k = array[2];
@@ -30,37 +31,37 @@ public class Vector3D {
     public Vector3D() {}
 
     public Vector3D(JSONArray direction) {
-        this.i = (double) direction.get(0);
-        this.j = (double) direction.get(1);
-        this.k = (double) direction.get(2);
+        this.i = (float) direction.get(0);
+        this.j = (float) direction.get(1);
+        this.k = (float) direction.get(2);
     }
 
     public static Vector3D displacement(Vertex2D source, Vertex2D target) {
-        double dx = target.x - source.x;
-        double dy = target.y - source.y;
-        double dz = target.z - source.z;
+        float dx = target.x - source.x;
+        float dy = target.y - source.y;
+        float dz = target.z - source.z;
 
         return new Vector3D(dx, dy, dz);
     }
 
     public static Vector3D displacement(Vertex source, Vertex target) {
-        double dx = target.x - source.x;
-        double dy = target.y - source.y;
-        double dz = target.z - source.z;
+        float dx = target.x - source.x;
+        float dy = target.y - source.y;
+        float dz = target.z - source.z;
 
         return new Vector3D(dx, dy, dz);
     }
 
-    public double length() {
-        return Math.sqrt(i*i + j*j + k*k);
+    public float length() {
+        return (float) Math.sqrt(i*i + j*j + k*k);
     }
 
     public void normalise() {
-        double len = this.length();
-
-        this.i /= len;
-        this.j /= len;
-        this.k /= len;
+        float radicand = i*i + j*j + k*k;
+        float inverseSqrt = math.Q_rsqrt(radicand);
+        this.i *= inverseSqrt;
+        this.j *= inverseSqrt;
+        this.k *= inverseSqrt;
     }
 
     public Vector3D cross(Vector3D v, Vector3D w) {
@@ -92,11 +93,11 @@ public class Vector3D {
         this.k = v.i*w.j - v.j*w.i;
     }
 
-    public double dot(Vector3D v, Vector3D w) {
+    public float dot(Vector3D v, Vector3D w) {
         return v.i*w.i + v.j*w.j + v.k;
     }
 
-    public double dot(Vector3D w) {
+    public float dot(Vector3D w) {
         return dot(this, w);
     }
 
@@ -112,8 +113,8 @@ public class Vector3D {
         this.k -= v.z - w.z;
     }
 
-    public double angle(Vector3D v, Vector3D w) { // returns angle between two vectors
-        return Math.acos( dot(v, w) / (v.length() * w.length()));
+    public float angle(Vector3D v, Vector3D w) { // returns angle between two vectors
+        return (float) Math.acos( dot(v, w) / (v.length() * w.length()));
     }
     public String toString() {
         return "("+i+", "+j+", "+k+")";

@@ -15,7 +15,7 @@ import rMath.Vertex;
 
 public class MollerTrumbore {
 
-    private static final double EPSILON = 0.0000001;
+    private static final float EPSILON = 0.0000001F;
 
     public static boolean rayIntersectsTriangle(Vertex rayOrigin,
                                                 Vector3D rayVector,
@@ -30,7 +30,7 @@ public class MollerTrumbore {
         Vector3D s = new Vector3D();
         Vector3D q = new Vector3D();
 
-        double a, f, u, v;
+        float a, f, u, v;
         edge1.set_sub(vertex1, vertex0); // same as "edge1.x = vertex1.x - vertex0.x; ... "
         edge2.set_sub(vertex2, vertex0);
         h.set_cross(rayVector, edge2); // h = rayVector cross edge2
@@ -40,7 +40,7 @@ public class MollerTrumbore {
             return false;    // This ray is parallel to this triangle.
         }
 
-        f = 1.0 / a;
+        f = 1.0f / a;
         s.set_sub(rayOrigin, vertex0);
         u = f * (s.dot(h));
 
@@ -56,10 +56,10 @@ public class MollerTrumbore {
         }
 
         // At this stage we can compute t to find out where the intersection point is on the line.
-        double t = f * edge2.dot(q);
+        float t = f * edge2.dot(q);
         if (t > EPSILON) // ray intersection
         {
-            outIntersectionPoint.set(0.0, 0.0, 0.0);
+            outIntersectionPoint.set(0.0F, 0.0F, 0.0F);
             outIntersectionPoint.scaleAdd(t, rayVector, rayOrigin);
             return true;
         } else // This means that there is a line intersection but not a ray intersection.

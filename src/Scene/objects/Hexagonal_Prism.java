@@ -6,9 +6,9 @@ import rMath.Vertex;
 import java.awt.Color;
 
 public class Hexagonal_Prism extends Shape {
-    private void generateVertices(double width, double length, double height) {
-        double r3 = Math.sqrt(3);
-        double l = length/2;
+    private void generateVertices(float width, float length, float height) {
+        float r3 = 1.7320508F;
+        float l = length/2;
 
         Vertex A = new Vertex(r3, l, 1);
         Vertex B = new Vertex(r3, l, -1);
@@ -59,15 +59,15 @@ public class Hexagonal_Prism extends Shape {
             triangles.add(new Triangle(face[0], face[1], face[2]));
         }
     }
-    public Hexagonal_Prism(double x, double y, double z, double length, double scale, Color colour) {
+    public Hexagonal_Prism(float x, float y, float z, float length, float scale, Color colour) {
         super(x, y, z, scale, colour);
 
-        generateVertices(1., length, 1.);
+        generateVertices(1F, length, 1F);
     }
 
-    public Hexagonal_Prism(double x, double y, double z, JSONObject size, Color color) {
-        super(x, y, z, (double) size.get("scale"), color);
+    public Hexagonal_Prism(float x, float y, float z, JSONObject size, Color color) {
+        super(x, y, z, (float) size.get("scale"), color);
 
-        generateVertices((double) size.get("width"), (double) size.get("length"), (double) size.get("height"));
+        generateVertices((float) size.get("width"), (float) size.get("length"), (float) size.get("height"));
     }
 }
