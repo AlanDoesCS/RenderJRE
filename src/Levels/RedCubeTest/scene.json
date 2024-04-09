@@ -1,0 +1,31 @@
+{
+  "Scene": {
+    "Objects":[
+      {
+        "id": "Cube 1",
+        "type": "Cube",
+        "visible": true,
+
+        "coordinate": [0.0, 0.0, 10.0],
+        "rotation": [0.0, 0.0, 0.0],
+
+        "size": {
+          "scale": 1.0,
+          "width": 1.0,
+          "length": 1.0,
+          "height": 1.0
+        },
+        "color": "RED"
+      }
+    ],
+    "Lighting": [
+      {
+        "type": "DirectLight",
+        "visible": true,
+        "coordinate": [0.0, 0.0, 0.0],
+        "direction": [1.0, -3.0, -2.0],
+        "color": "WHITE"
+      }
+    ]
+  }
+}
