@@ -13,11 +13,13 @@ import rMath.*;
 import Scene.objects.dependencies.*;
 import Tools.math;
 
+import static Rendering.Bresenham.*;
+
 public class Renderer {
-    final float degToRad = Math.PI / 180; // ratio of degrees to radians
+    final float degToRad = (float) (Math.PI / 180); // ratio of degrees to radians
 
     public int zoom;
-    public float FOV, AspectRatio, ZFar = 1000, ZNear = 0.1;
+    public float FOV, AspectRatio, ZFar = 1000f, ZNear = 0.1f;
     public int WindowResX, WindowResY;
     private ArrayList<String> arguments = new ArrayList<>();
     private LevelHandler levelHandler;
@@ -40,7 +42,7 @@ public class Renderer {
 
         Vertex2D projected = new Vertex2D();
 
-        float fl = 1/Math.tan(FOV/2);
+        float fl = 1/(float) Math.tan(FOV/2);
         float ZNormal = ZFar / (ZFar - ZNear);
         projected.x = (float) WindowResX/2 + zoom * (AspectRatio*fl*relative_x)/relative_z;
         projected.y = (float) WindowResY/2 + (zoom * (fl * relative_y) / relative_z);
@@ -88,70 +90,39 @@ public class Renderer {
         return new Color((int) colorVect.i, (int) colorVect.j, (int) colorVect.k);
     }
 
-    /*
-                     A
-                     /\
-                    /    \
-                  B/___     \
-                        ----___\C
-    */
-
-    public ArrayList<Pixel> drawLine(Pixel a, Pixel b) {
-        ArrayList<Pixel> linePixels = new ArrayList<>();
-
+    public void drawLine2D(Pixel a, Pixel b) {
         // always start with left-most pixel
         Pixel source = Tools.math.minX(a, b);
         Pixel target = Tools.math.maxX(a, b);
+        zBuffer.add(source);
+        zBuffer.add(target);
+        List<List<Integer>> bresenham2DLine = bresenham3D(source, target);
 
-        float dx = target.getX() - source.getX();
-        float dy = target.getY() - source.getY();
-        float dz = target.getZ() - source.getZ();
-
-        int dR = target.getColor().getRed() - source.getColor().getRed();
-        int dG = target.getColor().getGreen() - source.getColor().getGreen();
-        int dB = target.getColor().getBlue() - source.getColor().getBlue();
-
-        int q = 1;
-
-        System.out.println("\n\nADDING NEW LINE: "+source+"->"+target);
-        while (source.getX() < target.getX()) {
-            source.addX(1);
-            source.addY(dy/dx);
-            source.addZ(dz/dx);
-
-            System.out.println("source: "+source);
-
-            float cr = source.getColor().getRed() + dR/dx*q;
-            float cg = source.getColor().getGreen() + dG/dx*q;
-            float cb = source.getColor().getBlue() + dB/dx*q;
-            source.setColor( new Color(
-                    math.min(math.max((int) cr, 0), 255),
-                    math.min(math.max((int) cg, 0), 255),
-                    math.min(math.max((int) cb, 0), 255)
-                    )
-            );
-
-            Pixel copy = source;
-
-            linePixels.add(copy);
-
-            q++;
+        for (List<Integer> pixel : bresenham2DLine) {
+            // TODO: find better solution for Z
+            zBuffer.add(new Pixel(pixel.get(0), pixel.get(1), 0, a.getColor()));
         }
-
-        return linePixels;
     }
-    public ArrayList<Pixel> outlineTriangle(Vertex2D[] triangle, Color outlineColor) {
-        ArrayList<Pixel> pixels = new ArrayList<>(3);
+    public void drawLine3D(Pixel a, Pixel b) {
+        // always start with left-most pixel
+        Pixel source = Tools.math.minX(a, b);
+        Pixel target = Tools.math.maxX(a, b);
+        zBuffer.add(source);
+        zBuffer.add(target);
+        List<List<Integer>> bresenham3DLine = bresenham3D(source, target);
 
+        for (List<Integer> pixel : bresenham3DLine) {
+            zBuffer.add(new Pixel(pixel.get(0), pixel.get(1), pixel.get(2), a.getColor()));
+        }
+    }
+    public void outlineTriangle(Vertex2D[] triangle, Color outlineColor) {
         Pixel A = new Pixel(triangle[0], outlineColor);
         Pixel B = new Pixel(triangle[1], outlineColor);
         Pixel C = new Pixel(triangle[2], outlineColor);
 
-        pixels.addAll(drawLine(A, B));
-        pixels.addAll(drawLine(A, C));
-        pixels.addAll(drawLine(B, C));
-
-        return pixels;
+        drawLine2D(A, B);
+        drawLine2D(A, C);
+        drawLine2D(B, C);
     }
     public ArrayList<Pixel> scanlineTriangle(Vertex2D[] triangle) {
         ArrayList<Pixel> pixels = new ArrayList<>(3);
@@ -160,13 +131,12 @@ public class Renderer {
         Vertex2D B = triangle[1];
         Vertex2D C = triangle[2];
 
-
         return pixels;
     }
 
     // Argument Handling: ------------------------------------------
     public void renderScene() {
-        Camera camera = new Camera(0., 0., 0.);
+        Camera camera = new Camera(0f, 0f, 0f);
         zBuffer = new DepthBuffer(WindowResX, WindowResY);
 
         boolean cel = arguments.contains("cel");
@@ -178,22 +148,16 @@ public class Renderer {
 
         for (Shape shape : sceneObjects) {
             if (shape.isVisible()) {
-                // Perform most efficient sorting algorithm based on input size
                 ArrayList<Triangle> triangles = shape.getTriangles();
 
                 Vertex2D[][] Triangle_Points = render_triangle_vertices(triangles, shape);
 
                 // cell shader outline
                 if (wireframe) {
-                    Color outlineColor = shape.getColour().darker();
+                    Color outlineColor = shape.getColour();
 
                     for (Vertex2D[] triangle : Triangle_Points) {
-                        ArrayList<Pixel> pixels = outlineTriangle(triangle, outlineColor);
-
-                        for (Pixel p : pixels) {
-                            zBuffer.add(p);
-                        }
-
+                        outlineTriangle(triangle, outlineColor);
                     }
                 }
             }

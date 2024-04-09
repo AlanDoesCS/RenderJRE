@@ -66,8 +66,8 @@ public class Hexagonal_Prism extends Shape {
     }
 
     public Hexagonal_Prism(float x, float y, float z, JSONObject size, Color color) {
-        super(x, y, z, (float) size.get("scale"), color);
+        super(x, y, z, ((Double) size.get("scale")).floatValue(), color);
 
-        generateVertices((float) size.get("width"), (float) size.get("length"), (float) size.get("height"));
+        generateVertices(((Double) size.get("width")).floatValue(), ((Double) size.get("length")).floatValue(), ((Double) size.get("height")).floatValue());
     }
 }

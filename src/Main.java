@@ -1,5 +1,4 @@
-import Levels.Level;
-import Levels.Level1.Level1;
+import Levels.*;
 import Rendering.JREWindow;
 
 import java.awt.Color;
@@ -9,9 +8,9 @@ import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
-        JREWindow Window = new JREWindow(10, 1000, 1000);
-        Window.setBackground(Color.BLACK);
-        Window.addLevel(new Level1());
+        JREWindow Window = new JREWindow(60, 1000, 700);
+        Window.addLevel(new Levels.Level1.Level());
+        Window.addLevel(new Levels.RedCubeTest.Level());
         Window.loadLevel(0);
 
         ArrayList<String> arguments = new ArrayList<>(Arrays.asList("wire", "diffuse"));

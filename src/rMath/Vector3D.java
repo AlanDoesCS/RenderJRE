@@ -31,9 +31,9 @@ public class Vector3D {
     public Vector3D() {}
 
     public Vector3D(JSONArray direction) {
-        this.i = (float) direction.get(0);
-        this.j = (float) direction.get(1);
-        this.k = (float) direction.get(2);
+        this.i = ((Double) direction.get(0)).floatValue();
+        this.j = ((Double) direction.get(1)).floatValue();
+        this.k = ((Double) direction.get(2)).floatValue();
     }
 
     public static Vector3D displacement(Vertex2D source, Vertex2D target) {

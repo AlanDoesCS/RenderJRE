@@ -27,9 +27,9 @@ public abstract class Light {
         Object colorObj = object.get("color");
 
         // coordinate handling
-        float x = (float) coordinates.get(0);
-        float y = (float) coordinates.get(1);
-        float z = (float) coordinates.get(2);
+        float x = ((Double) coordinates.get(0)).floatValue();
+        float y = ((Double) coordinates.get(1)).floatValue();
+        float z = ((Double) coordinates.get(2)).floatValue();
 
         // color handling
         Color color;

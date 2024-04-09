@@ -19,6 +19,10 @@ public class Pixel {
         this.color = color;
     }
 
+    public Pixel(int x1, int y1, int z1, Color color) {
+        this.coordinate = new Vector3D(x1, y1, z1);
+        this.color = color;
+    }
     public Pixel(int x1, int y1, int z1) {
         this.coordinate = new Vector3D(x1, y1, z1);
         this.color = Color.white;
@@ -61,6 +65,6 @@ public class Pixel {
         }
     }
     public String toString() {
-        return "Pixel: "+getCoordinate().toString();
+        return "Pixel: "+getCoordinate().toString()+", Color: "+getColor();
     }
 }

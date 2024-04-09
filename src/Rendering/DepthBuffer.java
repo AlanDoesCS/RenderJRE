@@ -6,11 +6,14 @@ import java.awt.Color;
 import Rendering.*;
 
 public class DepthBuffer {
+    private int width, height;
     private final float extent = 1e5F;
     private Pixel[][] buffer;
 
     public DepthBuffer(int sizeX, int sizeY) {
         buffer = new Pixel[sizeY][sizeX];
+        width = sizeX;
+        height = sizeY;
 
         for (int i=0; i<sizeY; i++) {
             for (int j=0; j<sizeX; j++) {
@@ -21,7 +24,10 @@ public class DepthBuffer {
     }
 
     public void add(Pixel p) {
-        buffer[(int) p.getY()][(int) p.getX()].overwriteIfCloser(p);
+        int X = (int) p.getX(), Y = (int) p.getY();
+        if (0<=X && X<width && 0<=Y && Y<height) {
+            buffer[(int) p.getY()][(int) p.getX()].overwriteIfCloser(p);
+        }
     }
 
     public Pixel[][] toArray() {
