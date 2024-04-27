@@ -13,8 +13,6 @@ import rMath.*;
 import Scene.objects.dependencies.*;
 import Tools.math;
 
-import static Rendering.Bresenham.*;
-
 public class Renderer {
     final float degToRad = (float) (Math.PI / 180); // ratio of degrees to radians
 
@@ -30,7 +28,8 @@ public class Renderer {
         this.FOV = FOV * degToRad;
         this.WindowResX = WindowResX;
         this.WindowResY = WindowResY;
-        this.AspectRatio = (float) WindowResY / WindowResX;
+        //this.AspectRatio = (float) WindowResY / WindowResX;
+        this.AspectRatio = 1f;
         this.zBuffer = new DepthBuffer(WindowResX, WindowResY);
         this.levelHandler = new LevelHandler();
     }
@@ -96,12 +95,7 @@ public class Renderer {
         Pixel target = Tools.math.maxX(a, b);
         zBuffer.add(source);
         zBuffer.add(target);
-        List<List<Integer>> bresenham2DLine = bresenham3D(source, target);
 
-        for (List<Integer> pixel : bresenham2DLine) {
-            // TODO: find better solution for Z
-            zBuffer.add(new Pixel(pixel.get(0), pixel.get(1), 0, a.getColor()));
-        }
     }
     public void drawLine3D(Pixel a, Pixel b) {
         // always start with left-most pixel
@@ -109,29 +103,21 @@ public class Renderer {
         Pixel target = Tools.math.maxX(a, b);
         zBuffer.add(source);
         zBuffer.add(target);
-        List<List<Integer>> bresenham3DLine = bresenham3D(source, target);
-
-        for (List<Integer> pixel : bresenham3DLine) {
-            zBuffer.add(new Pixel(pixel.get(0), pixel.get(1), pixel.get(2), a.getColor()));
-        }
+        bresenham3D(source, target);
     }
     public void outlineTriangle(Vertex2D[] triangle, Color outlineColor) {
         Pixel A = new Pixel(triangle[0], outlineColor);
         Pixel B = new Pixel(triangle[1], outlineColor);
         Pixel C = new Pixel(triangle[2], outlineColor);
 
-        drawLine2D(A, B);
-        drawLine2D(A, C);
-        drawLine2D(B, C);
+        drawLine3D(A, B);
+        drawLine3D(A, C);
+        drawLine3D(B, C);
     }
-    public ArrayList<Pixel> scanlineTriangle(Vertex2D[] triangle) {
-        ArrayList<Pixel> pixels = new ArrayList<>(3);
-
+    public void scanlineTriangle(Vertex2D[] triangle) {
         Vertex2D A = triangle[0];
         Vertex2D B = triangle[1];
         Vertex2D C = triangle[2];
-
-        return pixels;
     }
 
     // Argument Handling: ------------------------------------------
@@ -193,5 +179,93 @@ public class Renderer {
     }
     public void loadNextLevel() {
         levelHandler.goToNext();
+    }
+
+    /*
+    This code is an adapted version of the contributions by ishankhandelwals and Anant Agarwal to GeeksForGeeks.org
+     */
+
+    public void bresenham3D(Pixel a, Pixel b) {
+        int x1= (int) a.getX(), y1= (int) a.getY(), z1= (int) a.getZ(), x2= (int) b.getX(), y2= (int) b.getY(), z2= (int) b.getZ();
+
+        int dx = Math.abs(x2 - x1);
+        int dy = Math.abs(y2 - y1);
+        int dz = Math.abs(z2 - z1);
+        int xs;
+        int ys;
+        int zs;
+        if (x2 > x1) {
+            xs = 1;
+        } else {
+            xs = -1;
+        }
+        if (y2 > y1) {
+            ys = 1;
+        } else {
+            ys = -1;
+        }
+        if (z2 > z1) {
+            zs = 1;
+        } else {
+            zs = -1;
+        }
+
+        // Driving axis is X-axis
+        if (dx >= dy && dx >= dz) {
+            int p1 = 2 * dy - dx;
+            int p2 = 2 * dz - dx;
+            while (x1 != x2) {
+                x1 += xs;
+                if (p1 >= 0) {
+                    y1 += ys;
+                    p1 -= 2 * dx;
+                }
+                if (p2 >= 0) {
+                    z1 += zs;
+                    p2 -= 2 * dx;
+                }
+                p1 += 2 * dy;
+                p2 += 2 * dz;
+                zBuffer.add(new Pixel(x1, y1, z1));
+            }
+
+            // Driving axis is Y-axis"
+        } else if (dy >= dx && dy >= dz) {
+            int p1 = 2 * dx - dy;
+            int p2 = 2 * dz - dy;
+            while (y1 != y2) {
+                y1 += ys;
+                if (p1 >= 0) {
+                    x1 += xs;
+                    p1 -= 2 * dy;
+                }
+                if (p2 >= 0) {
+                    z1 += zs;
+                    p2 -= 2 * dy;
+                }
+                p1 += 2 * dx;
+                p2 += 2 * dz;
+                zBuffer.add(new Pixel(x1, y1, z1));
+            }
+
+            // Driving axis is Z-axis"
+        } else {
+            int p1 = 2 * dy - dz;
+            int p2 = 2 * dx - dz;
+            while (z1 != z2) {
+                z1 += zs;
+                if (p1 >= 0) {
+                    y1 += ys;
+                    p1 -= 2 * dz;
+                }
+                if (p2 >= 0) {
+                    x1 += xs;
+                    p2 -= 2 * dz;
+                }
+                p1 += 2 * dy;
+                p2 += 2 * dx;
+                zBuffer.add(new Pixel(x1, y1, z1));
+            }
+        }
     }
 }

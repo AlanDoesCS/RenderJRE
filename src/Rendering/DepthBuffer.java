@@ -1,9 +1,7 @@
 package Rendering;
 
 import rMath.Vector3D;
-
 import java.awt.Color;
-import Rendering.*;
 
 public class DepthBuffer {
     private int width, height;
@@ -26,7 +24,11 @@ public class DepthBuffer {
     public void add(Pixel p) {
         int X = (int) p.getX(), Y = (int) p.getY();
         if (0<=X && X<width && 0<=Y && Y<height) {
-            buffer[(int) p.getY()][(int) p.getX()].overwriteIfCloser(p);
+            if (buffer[(int) p.getY()][(int) p.getX()] != null) {
+                buffer[(int) p.getY()][(int) p.getX()].overwriteIfCloser(p);
+            } else { // hasn't been filled
+                buffer[(int) p.getY()][(int) p.getX()] = p;
+            }
         }
     }
 

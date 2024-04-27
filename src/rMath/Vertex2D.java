@@ -5,10 +5,6 @@ public class Vertex2D {
     public float z; // used for ordering vertices
 
     public Vertex2D[] edges = {};
-    public Vertex2D(float x, float y) {
-        this.x = x;
-        this.y = y;
-    }
     public Vertex2D() {} // temporarily unset x an y values
 
     public void scaleAdd(float scale, Vector3D vector, Vertex2D start_vertex) {

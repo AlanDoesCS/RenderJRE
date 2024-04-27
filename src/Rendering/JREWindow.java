@@ -40,8 +40,10 @@ public class JREWindow extends JPanel implements ActionListener {
 
         for (Pixel[] row : rendererImage) {
             for (Pixel pixel : row) {
-                g2.setColor(pixel.getColor());
-                g2.drawRect((int) pixel.getX(), HEIGHT-(int) pixel.getY(), 1, 1);
+                if (pixel != null) {
+                    g2.setColor(pixel.getColor());
+                    g2.drawRect((int) pixel.getX(), HEIGHT-(int) pixel.getY(), 1, 1);
+                }
             }
         }
     }

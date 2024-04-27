@@ -1,4 +1,3 @@
-import Levels.*;
 import Rendering.JREWindow;
 
 import java.awt.Color;
@@ -17,7 +16,7 @@ public class Main {
         Window.passArguments(arguments);
 
         JFrame fr = new JFrame();
-        fr.setBounds(10, 10, Window.getWIDTH(), Window.getHEIGHT());
+        fr.setBounds(0, 0, Window.getWIDTH(), Window.getHEIGHT());
         fr.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         fr.setBackground(Color.BLACK);
