@@ -15,7 +15,8 @@
           "length": 1.0,
           "height": 1.0
         },
-        "color": "RED"
+        "color": "RED",
+        "shading": "FLAT"
       }
     ],
     "Lighting": [

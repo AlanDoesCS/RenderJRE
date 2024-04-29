@@ -1,10 +1,12 @@
 package Scene.objects.dependencies;
 
+import Rendering.Pixel;
 import rMath.Vertex;
 
 public class Triangle {
     public Vertex[] points;
     public Vertex centroid, midpoint;
+
     private void init(Vertex[] array) {
         points = array;
         if (array.length > 1) {
@@ -57,5 +59,9 @@ public class Triangle {
 
     public Triangle(Vertex vertex, Vertex vertex1, Vertex vertex2) {
         init(new Vertex[] {vertex, vertex1, vertex2});
+    }
+
+    public Triangle(Pixel[] triangle) {
+        init(new Vertex[] {triangle[0].toVertex(), triangle[1].toVertex(), triangle[2].toVertex()});
     }
 }

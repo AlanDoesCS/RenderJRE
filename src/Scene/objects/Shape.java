@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import rMath.*;
+import Scene.lighting.shaders.*;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -18,6 +19,7 @@ public class Shape {
     Vertex origin;
     Vertex[] vertices;
     ArrayList<Triangle> triangles = new ArrayList<>();
+    Shader.Types shaderType;
     float scale = 1;
     boolean visibility = true;
 
@@ -71,6 +73,7 @@ public class Shape {
 
         shape.setId((String) object.get("id"));
         shape.setVisibility((boolean) object.get("visible"));
+        shape.setShader(Shader.get((String) object.get("shading")));
 
         return shape;
     }
@@ -229,5 +232,13 @@ public class Shape {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    private void setShader(Shader.Types shaderType) {
+        this.shaderType = shaderType;
+    }
+
+    public Shader.Types getShaderType() {
+        return shaderType;
     }
 }

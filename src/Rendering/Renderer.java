@@ -3,11 +3,14 @@ package Rendering;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import Levels.*;
 import Scene.Camera;
 import Scene.lighting.DirectLight;
+import Scene.lighting.Light;
+import Scene.lighting.shaders.Shader;
 import Scene.objects.Shape;
 import rMath.*;
 import Scene.objects.dependencies.*;
@@ -51,33 +54,32 @@ public class Renderer {
         return projected;
     }
 
-    public Vertex2D[][] render_triangle_vertices(ArrayList<Triangle> triangles, Shape parent) {
-        // Get length of rendered vertex array
-        int tri_list_length = triangles.size();
-
-        // [Triangle][rMath.Vertex]
-        Vertex2D[][] triangle_array = new Vertex2D[tri_list_length][3]; // convert x,y,z into x,y
+    public Pixel[][] render_triangles(Shape shape) {
+        ArrayList<Triangle> triangles = shape.getTriangles();
+        Pixel[][] pixel_array = new Pixel[triangles.size()][3]; // convert x,y,z into x,y
 
         // Project vertices onto 2D plane
         int triangle = 0;
         for (Triangle tri : triangles) {
             int i=0;
             for (Vertex vertex : tri.points) {
-                triangle_array[triangle][i] = project3Dto2D(vertex, parent.getOrigin(), parent.getScale());
+                //pixel_array[triangle][i] = new Pixel(project3Dto2D(vertex, shape.getOrigin(), shape.getScale()), Tools.swing.generateRandomColor());
+                pixel_array[triangle][i] = new Pixel(project3Dto2D(vertex, shape.getOrigin(), shape.getScale()), shape.getColour());
                 i++;
             }
             triangle++;
         }
 
-        return triangle_array;
+        return pixel_array;
     }
 
-    public Color diffuseBasic(Color base, DirectLight light, Triangle object) { // base == shape color
+    public Color diffuseBasic(Color base, ArrayList<Light> lights, Pixel[] triangle) { // base == shape color
+        DirectLight light = (DirectLight) lights.getFirst();
         light.direction.normalise();
         Vector3D colorVect = new Vector3D();
 
         Vector3D normal = new Vector3D();
-        normal = normal.normal(object);
+        normal = normal.normal(Pixel.toTriangle(triangle));
         normal.normalise(); // normalise length of the vector
 
         float diffuseStrength = Math.abs(Math.min(0, light.direction.dot(normal)));
@@ -89,35 +91,84 @@ public class Renderer {
         return new Color((int) colorVect.i, (int) colorVect.j, (int) colorVect.k);
     }
 
-    public void drawLine2D(Pixel a, Pixel b) {
-        // always start with left-most pixel
-        Pixel source = Tools.math.minX(a, b);
-        Pixel target = Tools.math.maxX(a, b);
-        zBuffer.add(source);
-        zBuffer.add(target);
-
-    }
     public void drawLine3D(Pixel a, Pixel b) {
-        // always start with left-most pixel
-        Pixel source = Tools.math.minX(a, b);
-        Pixel target = Tools.math.maxX(a, b);
-        zBuffer.add(source);
-        zBuffer.add(target);
-        bresenham3D(source, target);
+        bresenham3D(a, b);
     }
-    public void outlineTriangle(Vertex2D[] triangle, Color outlineColor) {
-        Pixel A = new Pixel(triangle[0], outlineColor);
-        Pixel B = new Pixel(triangle[1], outlineColor);
-        Pixel C = new Pixel(triangle[2], outlineColor);
+    public void outlineTriangle(Pixel[] tri) {
+        drawLine3D(tri[0], tri[1]);
+        drawLine3D(tri[0], tri[2]);
+        drawLine3D(tri[1], tri[2]);
+    }
+    public void fillTriangle(Pixel[] tri) {
+        EdgeTable[] edgeTables = {
+                bresenham3D(tri[0], tri[1]),
+                bresenham3D(tri[0], tri[2]),
+                bresenham3D(tri[1], tri[2])
+        };
 
-        drawLine3D(A, B);
-        drawLine3D(A, C);
-        drawLine3D(B, C);
+        int[] minmax1 = edgeTables[0].min_max_Keys();
+        int[] minmax2 = edgeTables[1].min_max_Keys();
+        int[] minmax3 = edgeTables[2].min_max_Keys();
+
+        int minY = Math.min(Math.min(minmax1[0], minmax2[0]), minmax3[0]);
+        int maxY = Math.max(Math.max(minmax1[1], minmax2[1]), minmax3[1]);
+
+        for (int y = minY; y<=maxY; y++) {
+            Pixel min = new Pixel(Integer.MAX_VALUE, 0, 0);
+            Pixel max = new Pixel(Integer.MIN_VALUE, 0, 0);
+
+            for (EdgeTable edgeTable : edgeTables) {
+                if (edgeTable.containsKey(y)) {
+                    if (edgeTable.get(y).getX() < min.getX()) {
+                        min = edgeTable.get(y);
+                    }
+
+                    if (edgeTable.get(y).getX() > max.getX()) {
+                        max = edgeTable.get(y);
+                    }
+                }
+            }
+            drawLine3D(min, max);
+        }
     }
-    public void scanlineTriangle(Vertex2D[] triangle) {
-        Vertex2D A = triangle[0];
-        Vertex2D B = triangle[1];
-        Vertex2D C = triangle[2];
+
+    private void fillTriangle(Pixel[] tri, Color colorOverride) {
+        EdgeTable[] edgeTables = {
+                bresenham3D(tri[0], tri[1]),
+                bresenham3D(tri[0], tri[2]),
+                bresenham3D(tri[1], tri[2])
+        };
+
+        int[] minmax1 = edgeTables[0].min_max_Keys();
+        int[] minmax2 = edgeTables[1].min_max_Keys();
+        int[] minmax3 = edgeTables[2].min_max_Keys();
+
+        int minY = Math.min(Math.min(minmax1[0], minmax2[0]), minmax3[0]);
+        int maxY = Math.max(Math.max(minmax1[1], minmax2[1]), minmax3[1]);
+
+        for (int y = minY; y<=maxY; y++) {
+            Pixel min = new Pixel(Integer.MAX_VALUE, 0, 0);
+            Pixel max = new Pixel(Integer.MIN_VALUE, 0, 0);
+
+            for (EdgeTable edgeTable : edgeTables) {
+                if (edgeTable.containsKey(y)) {
+                    if (edgeTable.get(y).getX() < min.getX()) {
+                        min = edgeTable.get(y);
+                    }
+
+                    if (edgeTable.get(y).getX() > max.getX()) {
+                        max = edgeTable.get(y);
+                    }
+                }
+            }
+            // TODO: Better colour setting
+            min.setColor(colorOverride);
+            max.setColor(colorOverride);
+            drawLine3D(min, max);
+        }
+    }
+    private void flatShade(Pixel[][] Triangle_Pixels, Shape parent, ArrayList<Light> lights) {
+        for (Pixel[] pixels : Triangle_Pixels) fillTriangle(pixels, diffuseBasic(parent.getColour(), lights, pixels));
     }
 
     // Argument Handling: ------------------------------------------
@@ -132,19 +183,35 @@ public class Renderer {
 
         ArrayList<Shape> sceneObjects = levelHandler.getLevelObjects();
 
+        ArrayList<Light> lights = levelHandler.getLevelLights();
+
         for (Shape shape : sceneObjects) {
             if (shape.isVisible()) {
-                ArrayList<Triangle> triangles = shape.getTriangles();
+                Pixel[][] Triangle_Pixels = render_triangles(shape);
 
-                Vertex2D[][] Triangle_Points = render_triangle_vertices(triangles, shape);
-
-                // cell shader outline
-                if (wireframe) {
-                    Color outlineColor = shape.getColour();
-
-                    for (Vertex2D[] triangle : Triangle_Points) {
-                        outlineTriangle(triangle, outlineColor);
+                if (fill) {
+                    for (Pixel[] pixels : Triangle_Pixels) {
+                        fillTriangle(pixels);
                     }
+                }
+                if (wireframe) {
+                    for (Pixel[] pixels : Triangle_Pixels) {
+                        outlineTriangle(pixels);
+                    }
+                }
+                Tools.output.warnMessage(shape.getShaderType().toString());
+                switch (shape.getShaderType()) {
+                    case FLAT:
+                        flatShade(Triangle_Pixels, shape, lights);
+                        break;
+                    case GOURAUD:
+                        flatShade(Triangle_Pixels, shape, lights);
+                        break;
+                    case PHONG:
+                        flatShade(Triangle_Pixels, shape, lights);
+                        break;
+                    default:
+                        flatShade(Triangle_Pixels, shape, lights);
                 }
             }
         }
@@ -185,35 +252,29 @@ public class Renderer {
     This code is an adapted version of the contributions by ishankhandelwals and Anant Agarwal to GeeksForGeeks.org
      */
 
-    public void bresenham3D(Pixel a, Pixel b) {
-        int x1= (int) a.getX(), y1= (int) a.getY(), z1= (int) a.getZ(), x2= (int) b.getX(), y2= (int) b.getY(), z2= (int) b.getZ();
+    public EdgeTable bresenham3D(Pixel a, Pixel b) {
+        EdgeTable edgeTable = new EdgeTable();
+
+        int x1 = (int) a.getX(), y1 = (int) a.getY(), z1 = (int) a.getZ();
+        int x2 = (int) b.getX(), y2 = (int) b.getY(), z2 = (int) b.getZ();
+
+        int r1 = a.getColor().getRed(), g1 = a.getColor().getGreen(), b1 = a.getColor().getBlue();
+        int r2 = b.getColor().getRed(), g2 = b.getColor().getGreen(), b2 = b.getColor().getBlue();
 
         int dx = Math.abs(x2 - x1);
         int dy = Math.abs(y2 - y1);
         int dz = Math.abs(z2 - z1);
-        int xs;
-        int ys;
-        int zs;
-        if (x2 > x1) {
-            xs = 1;
-        } else {
-            xs = -1;
-        }
-        if (y2 > y1) {
-            ys = 1;
-        } else {
-            ys = -1;
-        }
-        if (z2 > z1) {
-            zs = 1;
-        } else {
-            zs = -1;
-        }
+
+        int xs = x2 > x1 ? 1 : -1;
+        int ys = y2 > y1 ? 1 : -1;
+        int zs = z2 > z1 ? 1 : -1;
+
+        int p1, p2;
 
         // Driving axis is X-axis
         if (dx >= dy && dx >= dz) {
-            int p1 = 2 * dy - dx;
-            int p2 = 2 * dz - dx;
+            p1 = 2 * dy - dx;
+            p2 = 2 * dz - dx;
             while (x1 != x2) {
                 x1 += xs;
                 if (p1 >= 0) {
@@ -226,13 +287,17 @@ public class Renderer {
                 }
                 p1 += 2 * dy;
                 p2 += 2 * dz;
-                zBuffer.add(new Pixel(x1, y1, z1));
-            }
+                int interpolatedR = interpolate(r1, r2, x1, x2);
+                int interpolatedG = interpolate(g1, g2, x1, x2);
+                int interpolatedB = interpolate(b1, b2, x1, x2);
 
-            // Driving axis is Y-axis"
-        } else if (dy >= dx && dy >= dz) {
-            int p1 = 2 * dx - dy;
-            int p2 = 2 * dz - dy;
+                Pixel px = new Pixel(x1, y1, z1, new Color(interpolatedR, interpolatedG, interpolatedB));
+                zBuffer.add(px);
+                edgeTable.put(y1, px);
+            }
+        } else if (dy >= dx && dy >= dz) { // Driving axis is Y-axis
+            p1 = 2 * dx - dy;
+            p2 = 2 * dz - dy;
             while (y1 != y2) {
                 y1 += ys;
                 if (p1 >= 0) {
@@ -245,13 +310,17 @@ public class Renderer {
                 }
                 p1 += 2 * dx;
                 p2 += 2 * dz;
-                zBuffer.add(new Pixel(x1, y1, z1));
-            }
+                int interpolatedR = interpolate(r1, r2, y1, y2);
+                int interpolatedG = interpolate(g1, g2, y1, y2);
+                int interpolatedB = interpolate(b1, b2, y1, y2);
 
-            // Driving axis is Z-axis"
-        } else {
-            int p1 = 2 * dy - dz;
-            int p2 = 2 * dx - dz;
+                Pixel px = new Pixel(x1, y1, z1, new Color(interpolatedR, interpolatedG, interpolatedB));
+                zBuffer.add(px);
+                edgeTable.put(y1, px);
+            }
+        } else { // Driving axis is Z-axis
+            p1 = 2 * dy - dz;
+            p2 = 2 * dx - dz;
             while (z1 != z2) {
                 z1 += zs;
                 if (p1 >= 0) {
@@ -264,8 +333,20 @@ public class Renderer {
                 }
                 p1 += 2 * dy;
                 p2 += 2 * dx;
-                zBuffer.add(new Pixel(x1, y1, z1));
+                int interpolatedR = interpolate(r1, r2, z1, z2);
+                int interpolatedG = interpolate(g1, g2, z1, z2);
+                int interpolatedB = interpolate(b1, b2, z1, z2);
+
+                Pixel px = new Pixel(x1, y1, z1, new Color(interpolatedR, interpolatedG, interpolatedB));
+                zBuffer.add(px);
+                edgeTable.put(y1, px);
             }
         }
+        return edgeTable;
+    }
+
+    // Function to interpolate color component
+    private int interpolate(int start, int end, int step, int totalSteps) {
+        return (int) math.clamp(0, 255, start + (float) ((end - start) * step) / totalSteps);
     }
 }

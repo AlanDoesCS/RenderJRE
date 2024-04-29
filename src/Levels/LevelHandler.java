@@ -1,5 +1,6 @@
 package Levels;
 
+import Scene.lighting.Light;
 import Scene.objects.Shape;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class LevelHandler {
     public ArrayList<Shape> getLevelObjects() {
         return levels.get(currentLevelIndex).getSceneObjects();
     }
+    public ArrayList<Light> getLevelLights() { return levels.get(currentLevelIndex).getSceneLights(); }
 
 
     // Accessors and mutators ------------------------------------------------------------------------------------------

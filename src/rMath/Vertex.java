@@ -9,6 +9,11 @@ public class Vertex {
         this.y = y;
         this.z = z;
     }
+
+    public Vertex(Vector3D coordinate) {
+        set(coordinate.i, coordinate.j, coordinate.k);
+    }
+
     public void set(float x, float y, float z) {
         this.x = x;
         this.y = y;

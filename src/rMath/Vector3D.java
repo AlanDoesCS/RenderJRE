@@ -1,11 +1,9 @@
 package rMath;
 
-import Scene.objects.dependencies.*;
+import Rendering.Pixel;
+import Scene.objects.dependencies.Triangle;
 import Tools.math;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
-import java.awt.*;
 
 public class Vector3D {
     public float i, j, k;

@@ -12,8 +12,8 @@ public class Main {
         Window.addLevel(new Levels.RedCubeTest.Level());
         Window.loadLevel(0);
 
-        ArrayList<String> arguments = new ArrayList<>(Arrays.asList("wire", "diffuse"));
-        Window.passArguments(arguments);
+        //ArrayList<String> arguments = new ArrayList<>(Arrays.asList("diffuse"));
+        //Window.passArguments(arguments);
 
         JFrame fr = new JFrame();
         fr.setBounds(0, 0, Window.getWIDTH(), Window.getHEIGHT());

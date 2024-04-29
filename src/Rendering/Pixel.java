@@ -1,6 +1,8 @@
 package Rendering;
 
+import Scene.objects.dependencies.Triangle;
 import rMath.Vector3D;
+import rMath.Vertex;
 import rMath.Vertex2D;
 
 import java.awt.*;
@@ -26,6 +28,10 @@ public class Pixel {
     public Pixel(int x1, int y1, int z1) {
         this.coordinate = new Vector3D(x1, y1, z1);
         this.color = Color.white;
+    }
+
+    public static Triangle toTriangle(Pixel[] triangle) {
+        return new Triangle(triangle);
     }
 
     public Color getColor() {
@@ -66,5 +72,9 @@ public class Pixel {
     }
     public String toString() {
         return "Pixel: "+getCoordinate().toString()+", Color: "+getColor();
+    }
+
+    public Vertex toVertex() {
+        return new Vertex(getCoordinate());
     }
 }

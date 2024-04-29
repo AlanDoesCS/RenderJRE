@@ -19,6 +19,7 @@ public class Level {
     final List<String> specialObjectFormats = Arrays.asList("GLTF", "OBJ");
     ArrayList<Shape> sceneObjects = new ArrayList<>();
     ArrayList<Light> sceneLights = new ArrayList<>();
+
     public Level(String path, String name) {
         this.name = name;
         JSONParser parser = new JSONParser();

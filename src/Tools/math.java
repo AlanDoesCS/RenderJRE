@@ -4,14 +4,16 @@ import Rendering.Pixel;
 import Scene.objects.Shape;
 import Scene.objects.dependencies.Triangle;
 
+import java.util.Random;
 import java.lang.Math;
 
 public class math {
+    private static final Random random = new Random();
     public static float clamp (float min, float value, float max) {
         return Math.max(min, Math.min(max, value));
     }
     public static int randInt(int min, int max) {
-        return (int) ((Math.random() * (max - min)) + min);
+        return random.nextInt(min, max);
     }
     public static int min(int a, int b) {
         return Math.min(a, b);
