@@ -20,6 +20,24 @@
       },
 
       {
+        "id": "Cube 2",
+        "type": "Cube",
+        "visible": true,
+
+        "coordinate": [3.0, -2.0, 15.0],
+        "rotation": [0.0, 0.0, 0.0],
+
+        "size": {
+          "scale": 1.0,
+          "width": 1.0,
+          "length": 1.0,
+          "height": 1.0
+        },
+        "color": "WHITE",
+        "shading": "FLAT"
+      },
+
+      {
         "id": "Cuboid 1",
         "type": "Cuboid",
         "visible": true,
@@ -40,10 +58,10 @@
       {
         "id": "Hex Prism 1",
         "type": "Hexagonal Prism",
-        "visible": false,
+        "visible": true,
 
         "coordinate": [-2.0, 2.1, 15.0],
-        "rotation": [90.0, 0.0, 0.0],
+        "rotation": [0.0, 90.0, 0.0],
 
         "size": {
           "scale": 0.5,

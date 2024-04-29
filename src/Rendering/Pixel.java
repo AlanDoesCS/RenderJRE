@@ -10,6 +10,8 @@ import java.awt.*;
 public class Pixel {
     private Color color;
     private Vector3D coordinate;
+    private boolean isVertex = false;
+    private Vertex vertexIfValid = null;
 
     public Pixel(Vector3D coordinate, Color color) {
         this.coordinate = coordinate;
@@ -73,8 +75,12 @@ public class Pixel {
     public String toString() {
         return "Pixel: "+getCoordinate().toString()+", Color: "+getColor();
     }
+    public void setVertex(Vertex v) {
+        vertexIfValid = v;
+        isVertex = true;
+    }
 
-    public Vertex toVertex() {
-        return new Vertex(getCoordinate());
+    public Vertex getVertexIfValid() {
+        return vertexIfValid;
     }
 }

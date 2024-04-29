@@ -6,6 +6,8 @@ public abstract class Shader {
             case ("FLAT") -> Types.FLAT;
             case ("GOURAUD") -> Types.GOURAUD;
             case ("PHONG") -> Types.PHONG;
+            case ("WIREFRAME") -> Types.WIREFRAME;
+            case ("FILL") -> Types.FILL;
             default -> Types.FLAT;
         };
     }
@@ -13,6 +15,8 @@ public abstract class Shader {
     public enum Types {
         FLAT,
         GOURAUD,
-        PHONG;
+        PHONG,
+        WIREFRAME,
+        FILL
     }
 }

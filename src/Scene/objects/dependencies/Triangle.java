@@ -62,6 +62,6 @@ public class Triangle {
     }
 
     public Triangle(Pixel[] triangle) {
-        init(new Vertex[] {triangle[0].toVertex(), triangle[1].toVertex(), triangle[2].toVertex()});
+        init(new Vertex[] {triangle[0].getVertexIfValid(), triangle[1].getVertexIfValid(), triangle[2].getVertexIfValid()});
     }
 }

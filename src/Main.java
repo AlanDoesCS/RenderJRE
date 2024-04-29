@@ -12,9 +12,6 @@ public class Main {
         Window.addLevel(new Levels.RedCubeTest.Level());
         Window.loadLevel(0);
 
-        //ArrayList<String> arguments = new ArrayList<>(Arrays.asList("diffuse"));
-        //Window.passArguments(arguments);
-
         JFrame fr = new JFrame();
         fr.setBounds(0, 0, Window.getWIDTH(), Window.getHEIGHT());
         fr.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
