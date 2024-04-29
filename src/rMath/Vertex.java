@@ -33,4 +33,8 @@ public class Vertex {
     public void addEdges(Vertex[] others) {
         Vertex[] tmp = new Vertex[edges.length + others.length];
     }
+
+    public Vector3D toVector3D() {
+        return new Vector3D(x, y, z);
+    }
 }

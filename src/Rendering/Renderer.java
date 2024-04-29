@@ -3,14 +3,11 @@ package Rendering;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
 import Levels.*;
 import Scene.Camera;
 import Scene.lighting.DirectLight;
 import Scene.lighting.Light;
-import Scene.lighting.shaders.Shader;
 import Scene.objects.Shape;
 import rMath.*;
 import Scene.objects.dependencies.*;
@@ -74,13 +71,31 @@ public class Renderer {
         return pixel_array;
     }
 
-    public Color diffuseBasic(Color base, ArrayList<Light> lights, Pixel[] triangle) { // base == shape color
+    public Color computeFragmentColor(Color base, ArrayList<Light> lights, Pixel[] triangle) { // base == shape color
         DirectLight light = (DirectLight) lights.getFirst();
         light.direction.normalise();
         Vector3D colorVect = new Vector3D();
 
         Vector3D normal = new Vector3D();
         normal = normal.normal(Pixel.toTriangle(triangle));
+        normal.normalise(); // normalise length of the vector
+
+        float diffuseStrength = Math.abs(Math.min(0, light.direction.dot(normal)));
+
+        colorVect.i = math.clamp(0,diffuseStrength * base.getRed(), 255);
+        colorVect.j = math.clamp(0,diffuseStrength * base.getGreen(), 255);
+        colorVect.k = math.clamp(0,diffuseStrength * base.getBlue(), 255);
+
+        return new Color((int) colorVect.i, (int) colorVect.j, (int) colorVect.k);
+    }
+
+    public Color computeVertexColor(Color base, ArrayList<Light> lights, Pixel p) { // base == shape color, p must have vertex property
+        assert p.isVertex();
+        DirectLight light = (DirectLight) lights.getFirst();
+        light.direction.normalise();
+        Vector3D colorVect = new Vector3D();
+
+        Vector3D normal = p.getVertexIfValid().toVector3D();
         normal.normalise(); // normalise length of the vector
 
         float diffuseStrength = Math.abs(Math.min(0, light.direction.dot(normal)));
@@ -169,13 +184,22 @@ public class Renderer {
         }
     }
     private void flatShade(Pixel[][] Triangle_Pixels, Shape parent, ArrayList<Light> lights) {
-        for (Pixel[] pixels : Triangle_Pixels) fillTriangle(pixels, diffuseBasic(parent.getColour(), lights, pixels));
+        for (Pixel[] pixels : Triangle_Pixels) fillTriangle(pixels, computeFragmentColor(parent.getColour(), lights, pixels));
     }
     private void fill(Pixel[][] Triangle_Pixels, Shape parent) { // No shading, just filling colours
         for (Pixel[] pixels : Triangle_Pixels) fillTriangle(pixels, parent.getColour());
     }
-    private void wireframe(Pixel[][] Triangle_Pixels, Shape parent) { // No shading, just filling colours
+    private void wireframe(Pixel[][] Triangle_Pixels) { // No shading, just outline
         for (Pixel[] pixels : Triangle_Pixels) outlineTriangle(pixels);
+    }
+    private void gouraudShade(Pixel[][] Triangle_Pixels, Shape parent, ArrayList<Light> lights) { // No shading, just filling colours
+        for (Pixel[] pixels : Triangle_Pixels) {
+            // set vert cols
+            for (int i=0; i<pixels.length; i++) {
+                pixels[i].setColor(computeVertexColor(parent.getColour(), lights, pixels[i]));
+            }
+            fillTriangle(pixels);
+        }
     }
 
     // Argument Handling: ------------------------------------------
@@ -196,13 +220,13 @@ public class Renderer {
                         flatShade(Triangle_Pixels, shape, lights);
                         break;
                     case GOURAUD:
-                        flatShade(Triangle_Pixels, shape, lights);
+                        gouraudShade(Triangle_Pixels, shape, lights);
                         break;
                     case PHONG:
                         flatShade(Triangle_Pixels, shape, lights);
                         break;
                     case WIREFRAME:
-                        wireframe(Triangle_Pixels, shape);
+                        wireframe(Triangle_Pixels);
                         break;
                     case FILL:
                         fill(Triangle_Pixels, shape);

@@ -79,6 +79,9 @@ public class Pixel {
         vertexIfValid = v;
         isVertex = true;
     }
+    public boolean isVertex() {
+        return isVertex;
+    }
 
     public Vertex getVertexIfValid() {
         return vertexIfValid;

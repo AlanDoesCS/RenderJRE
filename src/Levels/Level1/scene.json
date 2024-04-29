@@ -33,8 +33,26 @@
           "length": 1.0,
           "height": 1.0
         },
-        "color": "WHITE",
-        "shading": "FLAT"
+        "color": "MAGENTA",
+        "shading": "WIREFRAME"
+      },
+
+      {
+        "id": "Cube 2",
+        "type": "Cube",
+        "visible": true,
+
+        "coordinate": [2.0, -2.0, 16.0],
+        "rotation": [0.0, 0.0, 0.0],
+
+        "size": {
+          "scale": 1.0,
+          "width": 1.0,
+          "length": 1.0,
+          "height": 1.0
+        },
+        "color": "GREEN",
+        "shading": "FILL"
       },
 
       {
@@ -89,6 +107,24 @@
         },
         "color": "pink",
         "shading": "FLAT"
+      },
+
+      {
+        "id": "Icosahedron 2",
+        "type": "Icosahedron",
+        "visible": true,
+
+        "coordinate": [3.6, 1.7, 14.0],
+        "rotation": [0.0, 0.0, 0.0],
+
+        "size": {
+          "scale": 1.0,
+          "width": 1.0,
+          "length": 1.0,
+          "height": 1.0
+        },
+        "color": "pink",
+        "shading": "GOURAUD"
       },
 
       {
