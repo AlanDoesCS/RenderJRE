@@ -1,5 +1,6 @@
 package Scene.lighting;
 
+import Levels.Level;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import rMath.Vector3D;
@@ -12,15 +13,17 @@ public abstract class Light {
     String id = "idLess";
     boolean visibility = true;
     Color color = Color.WHITE;
+    Level parent = null;
 
     // initialisation handlers
-    public Light(float x, float y, float z, Color color) {
+    public Light(float x, float y, float z, Color color, Level parent) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.color = color;
+        this.parent = parent;
     }
-    public static Light of(JSONObject object) {
+    public static Light of(JSONObject object, Level parentLevel) {
         Light light;
 
         JSONArray coordinates = (JSONArray) object.get("coordinate");
@@ -53,10 +56,10 @@ public abstract class Light {
         }
 
         light = switch ((String) object.get("type")) {
-            case ("DirectLight") -> new DirectLight(x, y, z, new Vector3D((JSONArray) object.get("direction")), color);
+            case ("DirectLight") -> new DirectLight(x, y, z, new Vector3D((JSONArray) object.get("direction")), color, parentLevel);
             // TODO: implement lighting types:
-            case ("PointLight") -> new PointLight(x, y, z, color);
-            case ("RectLight") -> new RectLight(x, y, z, color);
+            case ("PointLight") -> new PointLight(x, y, z, color, parentLevel);
+            case ("RectLight") -> new RectLight(x, y, z, color, parentLevel);
             default -> throw new IllegalArgumentException("Attempted to create illegal or unsupported object type");
         };
 

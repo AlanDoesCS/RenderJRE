@@ -1,4 +1,5 @@
 package Scene.objects;
+import Levels.Level;
 import Scene.objects.dependencies.*;
 
 import org.json.simple.JSONObject;
@@ -6,8 +7,9 @@ import rMath.Vertex;
 import java.awt.Color;
 
 public class Hexagonal_Prism extends Shape {
+    final private static float r3 = 1.7320508F;
+
     private void generateVertices(float width, float length, float height) {
-        float r3 = 1.7320508F;
         float l = length/2;
 
         Vertex A = new Vertex(r3, l, 1);
@@ -59,14 +61,9 @@ public class Hexagonal_Prism extends Shape {
             triangles.add(new Triangle(face[0], face[1], face[2]));
         }
     }
-    public Hexagonal_Prism(float x, float y, float z, float length, float scale, Color colour) {
-        super(x, y, z, scale, colour);
 
-        generateVertices(1F, length, 1F);
-    }
-
-    public Hexagonal_Prism(float x, float y, float z, JSONObject size, Color color) {
-        super(x, y, z, ((Double) size.get("scale")).floatValue(), color);
+    public Hexagonal_Prism(float x, float y, float z, JSONObject size, Color color, Level parent) {
+        super(x, y, z, ((Double) size.get("scale")).floatValue(), color, parent);
 
         generateVertices(((Double) size.get("width")).floatValue(), ((Double) size.get("length")).floatValue(), ((Double) size.get("height")).floatValue());
     }

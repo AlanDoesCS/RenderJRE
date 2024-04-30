@@ -1,4 +1,5 @@
 package Scene.objects;
+import Levels.Level;
 import Scene.objects.dependencies.*;
 
 import java.awt.Color;
@@ -7,9 +8,9 @@ import org.json.simple.JSONObject;
 import rMath.*;
 
 public class Icosahedron extends Shape {
-    private void generateVertices(float width, float length, float height) {
-        float phi = 1.618034F; // Golden ratio
+    private static final float phi = 1.618034F; // Golden ratio
 
+    private void generateVertices(float width, float length, float height) {
         Vertex A = new Vertex(0, 1, phi);
         Vertex B = new Vertex(0, -1, phi);
         Vertex C = new Vertex(0, 1, -phi);
@@ -50,14 +51,9 @@ public class Icosahedron extends Shape {
             triangles.add(new Triangle(face[0], face[1], face[2]));
         }
     }
-    public Icosahedron(float x, float y, float z, float scale, Color colour) {
-        super(x, y, z, scale, colour);
 
-        generateVertices(1f, 1f, 1f);
-    }
-
-    public Icosahedron(float x, float y, float z, JSONObject size, Color color) {
-        super(x, y, z, ((Double) size.get("scale")).floatValue(), color);
+    public Icosahedron(float x, float y, float z, JSONObject size, Color color, Level parent) {
+        super(x, y, z, ((Double) size.get("scale")).floatValue(), color, parent);
 
         generateVertices(((Double) size.get("width")).floatValue(), ((Double) size.get("length")).floatValue(), ((Double) size.get("height")).floatValue());
     }

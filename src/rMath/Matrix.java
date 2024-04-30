@@ -41,6 +41,11 @@ public class Matrix {
         }
         return result;
     }
+
+    public static Vertex Multiply(Matrix M, Vertex vertex) {
+        return Multiply(M, vertex.toMatrix()).toVertex();
+    }
+
     public float determinant() {
         if (matrix.length != matrix[0].length) {
             throw new IllegalStateException("Matrix must be square");
@@ -83,6 +88,7 @@ public class Matrix {
     public float get(int row, int col) {
         return matrix[row][col];
     }
+    private Vertex toVertex() {return new Vertex(matrix[0][0], matrix[1][0], matrix[2][0]);}
 
     public String toString() {
         StringBuilder sb = new StringBuilder();

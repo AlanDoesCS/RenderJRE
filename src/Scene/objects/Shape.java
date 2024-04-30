@@ -1,4 +1,5 @@
 package Scene.objects;
+import Levels.Level;
 import Scene.objects.dependencies.*;
 
 import java.awt.Color;
@@ -13,18 +14,19 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
 public class Shape {
-    final static float degToRad = (float) (Math.PI / 180); // ratio of degrees to radians
+    static final float degToRad = (float) (Math.PI / 180); // ratio of degrees to radians
     String id;
     Color colour;
     Vertex origin;
     Vertex[] vertices;
     ArrayList<Triangle> triangles = new ArrayList<>();
     Shader.Types shaderType;
+    Level parent;
     float scale = 1;
     boolean visibility = true;
 
     // initialisation handlers
-    public static Shape of(JSONObject object) {
+    public static Shape of(JSONObject object, Level parent) {
         Shape shape;
         JSONObject size = (JSONObject) object.get("size");
         JSONArray coordinates = (JSONArray) object.get("coordinate");
@@ -58,16 +60,16 @@ public class Shape {
         }
 
         shape = switch ((String) object.get("type")) {
-            case ("Cube") -> new Cube(x, y, z, size, color);
-            case ("Cuboid") -> new Cuboid(x, y, z, size, color);
-            case ("Hexagonal Prism") -> new Hexagonal_Prism(x, y, z, size, color);
-            case ("Icosahedron") -> new Icosahedron(x, y, z, size, color);
-            case ("Plane") -> new Plane(x, y, z, size, color);
-            case ("Pyramid") -> new Pyramid(x, y, z, size, color);
+            case ("Cube") -> new Cube(x, y, z, size, color, parent);
+            case ("Cuboid") -> new Cuboid(x, y, z, size, color, parent);
+            case ("Hexagonal Prism") -> new Hexagonal_Prism(x, y, z, size, color, parent);
+            case ("Icosahedron") -> new Icosahedron(x, y, z, size, color, parent);
+            case ("Plane") -> new Plane(x, y, z, size, color, parent);
+            case ("Pyramid") -> new Pyramid(x, y, z, size, color, parent);
 
             //TODO: implement GLTF and OBJ formats
-            case ("OBJ") -> new Cube(x, y, z, size, color);
-            case ("GLTF") -> new Cube(x, y, z, size, color);
+            case ("OBJ") -> new Cube(x, y, z, size, color, parent);
+            case ("GLTF") -> new Cube(x, y, z, size, color, parent);
             default -> throw new IllegalArgumentException("Attempted to create illegal or unsupported object type");
         };
 
@@ -78,7 +80,8 @@ public class Shape {
         return shape;
     }
 
-    void init(float[][] vertex_array, float x, float y, float z, float scale, Color colour) {
+    void init(float[][] vertex_array, float x, float y, float z, float scale, Color colour, Level parent) {
+        this.parent = parent;
 
         this.scale = scale;
         origin = new Vertex(x,y,z);
@@ -119,22 +122,23 @@ public class Shape {
         this.colour = colour;
     }
 
-    public Shape(float[][] vertex_array, float x, float y, float z, float scale, Color colour) { // given colour
-        init(vertex_array, x, y, z, scale, colour);
+    public Shape(float[][] vertex_array, float x, float y, float z, float scale, Color colour, Level parent) { // given colour
+        init(vertex_array, x, y, z, scale, colour, parent);
     }
 
-    public Shape(float[][] vertex_array, float x, float y, float z, float scale) { // default colour
-        init(vertex_array, x, y, z, scale, Color.BLACK);
+    public Shape(float[][] vertex_array, float x, float y, float z, float scale, Level parent) { // default colour
+        init(vertex_array, x, y, z, scale, Color.BLACK, parent);
     }
-    public Shape(float x, float y, float z, float scale, Color colour) { // Empty vertices - Intended only for temporary purposes
-        init(new float[][]{}, x, y, z, scale, colour);
+    public Shape(float x, float y, float z, float scale, Color colour, Level parent) { // Empty vertices - Intended only for temporary purposes
+        init(new float[][]{}, x, y, z, scale, colour, parent);
     }
-    public Shape(float x, float y, float z, float scale) { // Empty vertices - Intended only for temporary purposes
-        init(new float[][]{}, x, y, z, scale, Color.BLACK);
+    public Shape(float x, float y, float z, float scale, Level parent) { // Empty vertices - Intended only for temporary purposes
+        init(new float[][]{}, x, y, z, scale, Color.BLACK, parent);
     }
 
     public void setScale(float new_scale) {
         this.scale = new_scale;
+        parent.updateShape(this);
     }
     // Shape rotation using rotation matrices
     private void rotateX(float theta_x) {
@@ -145,6 +149,7 @@ public class Shape {
             vertex.y = newY;
             vertex.z = newZ;
         }
+        parent.updateShape(this);
     }
 
     private void rotateY(float theta_y) {
@@ -155,6 +160,7 @@ public class Shape {
             vertex.x = newX;
             vertex.z = newZ;
         }
+        parent.updateShape(this);
     }
 
     private void rotateZ(float theta_z) {
@@ -165,6 +171,14 @@ public class Shape {
             vertex.x = newX;
             vertex.y = newY;
         }
+        parent.updateShape(this);
+    }
+
+    private void applyTransform(Matrix M) {
+        for (Vertex vertex : vertices) {
+            vertex.set(rMath.Matrix.Multiply(M, vertex));
+        }
+        parent.updateShape(this);
     }
 
     public void setRotation(float theta_x, float theta_y, float theta_z) {
@@ -177,6 +191,7 @@ public class Shape {
         if (theta_z != 0) {
             rotateZ(theta_z*degToRad);
         }
+        parent.updateShape(this);
     }
 
     // -------------------------------------------------------------------------------------------------------------- //
@@ -197,22 +212,15 @@ public class Shape {
 
     public void setOrigin(Vertex origin) {
         this.origin = origin;
+        parent.updateShape(this);
     }
 
     public Vertex[] getVertices() {
         return vertices;
     }
 
-    public void setVertices(Vertex[] vertices) {
-        this.vertices = vertices;
-    }
-
     public ArrayList<Triangle> getTriangles() {
         return triangles;
-    }
-
-    public void setTriangles(ArrayList<Triangle> triangles) {
-        this.triangles = triangles;
     }
 
     public float getScale() {
@@ -237,8 +245,26 @@ public class Shape {
     private void setShader(Shader.Types shaderType) {
         this.shaderType = shaderType;
     }
+    private void updateShader(Shader.Types shaderType) {
+        setShader(shaderType);
+        parent.updateShape(this);
+    }
 
     public Shader.Types getShaderType() {
         return shaderType;
+    }
+
+    public void updateVisibility(boolean visibility) {
+        setVisibility(visibility);
+        parent.updateShape(this);
+    }
+
+    public void updateColour(Color color) {
+        setColour(color);
+        parent.updateShape(this);
+    }
+
+    public String toString() {
+        return "Shape, ID: "+this.id+", COLOUR: "+this.getColour();
     }
 }

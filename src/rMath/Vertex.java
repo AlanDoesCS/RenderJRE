@@ -37,4 +37,16 @@ public class Vertex {
     public Vector3D toVector3D() {
         return new Vector3D(x, y, z);
     }
+
+    public Matrix toMatrix() {
+        return new Matrix(new Float[][]{
+                {this.x},
+                {this.y},
+                {this.z}
+        });
+    }
+
+    public void set(Vertex v) {
+        set(v.x, v.y, v.z);
+    }
 }

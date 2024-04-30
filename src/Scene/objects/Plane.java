@@ -1,4 +1,5 @@
 package Scene.objects;
+import Levels.Level;
 import Scene.objects.dependencies.*;
 
 import java.awt.Color;
@@ -29,14 +30,9 @@ public class Plane extends Shape {
             triangles.add(new Triangle(face[0], face[1], face[2]));
         }
     }
-    public Plane(float x, float y, float z, float width, float length, float scale, Color colour) {
-        super(x, y, z, scale, colour);
 
-        generateVertices(width, length);
-    }
-
-    public Plane(float x, float y, float z, JSONObject size, Color color) {
-        super(x, y, z, ((Double) size.get("scale")).floatValue(), color);
+    public Plane(float x, float y, float z, JSONObject size, Color color, Level parent) {
+        super(x, y, z, ((Double) size.get("scale")).floatValue(), color, parent);
 
         generateVertices(((Double) size.get("width")).floatValue(), ((Double) size.get("length")).floatValue());
     }

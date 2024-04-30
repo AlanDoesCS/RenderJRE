@@ -41,4 +41,8 @@ public class LevelHandler {
     public void setCurrent(Class<? extends Level> parentClass) {
         currentLevelIndex = levelIndicesByClass.get(parentClass);
     }
+
+    public Level getCurrent() {
+        return levels.get(currentLevelIndex);
+    }
 }

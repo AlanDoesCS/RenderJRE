@@ -204,7 +204,7 @@ public class Renderer {
 
     // Argument Handling: ------------------------------------------
     public void renderScene() {
-        Camera camera = new Camera(0f, 0f, 0f);
+        Camera camera = new Camera(0f, 0f, 0f, levelHandler.getCurrent());
         zBuffer = new DepthBuffer(WindowResX, WindowResY);
 
         ArrayList<Shape> sceneObjects = levelHandler.getLevelObjects();

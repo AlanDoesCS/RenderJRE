@@ -21,6 +21,7 @@
     ],
     "Lighting": [
       {
+        "id": "DL 1",
         "type": "DirectLight",
         "visible": true,
         "coordinate": [0.0, 0.0, 0.0],

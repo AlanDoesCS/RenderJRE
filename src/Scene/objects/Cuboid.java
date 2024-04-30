@@ -1,4 +1,5 @@
 package Scene.objects;
+import Levels.Level;
 import Scene.objects.dependencies.*;
 
 import org.json.simple.JSONObject;
@@ -38,14 +39,9 @@ public class Cuboid extends Shape {
             triangles.add(new Triangle(face[0], face[1], face[2]));
         }
     }
-    public Cuboid(float x, float y, float z, float width, float length, float height, float scale, Color colour) {
-        super(x, y, z, scale, colour);
 
-        generateVertices(width, length, height);
-    }
-
-    public Cuboid(float x, float y, float z, JSONObject size, Color color) {
-        super(x, y, z, ((Double) size.get("scale")).floatValue(), color);
+    public Cuboid(float x, float y, float z, JSONObject size, Color color, Level parent) {
+        super(x, y, z, ((Double) size.get("scale")).floatValue(), color, parent);
 
         generateVertices(((Double) size.get("width")).floatValue(), ((Double) size.get("length")).floatValue(), ((Double) size.get("height")).floatValue());
     }
