@@ -80,7 +80,7 @@ public class Renderer {
         normal = normal.normal(Pixel.toTriangle(triangle));
         normal.normalise(); // normalise length of the vector
 
-        float diffuseStrength = Math.abs(Math.min(0, light.direction.dot(normal)));
+        float diffuseStrength = Math.min(0, light.direction.dot(normal));
 
         colorVect.i = math.clamp(0,diffuseStrength * base.getRed(), 255);
         colorVect.j = math.clamp(0,diffuseStrength * base.getGreen(), 255);
